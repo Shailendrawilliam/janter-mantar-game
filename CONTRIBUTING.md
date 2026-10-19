@@ -1,75 +1,58 @@
-# Contributing to Chalo Jantar Mantar (चलो जंतर मंतर)
+# Contributing to Chalo Jantar Mantar (चलो जंतर मंतर) 🇮🇳
 
-Thank you for your interest in contributing to **Chalo Jantar Mantar**! This project is an open-source satirical Delhi crowd-runner built with TypeScript, Phaser 3, and Vite.
-
----
-
-## 🚀 How to Run Locally
-
-```bash
-# 1. Clone your fork
-git clone https://github.com/<your-username>/country_defender.git
-cd country_defender
-
-# 2. Install dependencies
-npm install
-
-# 3. Start local development server
-npm run dev
-
-# 4. Build production bundle & check types
-npm run build
-```
+Thank you for your interest in contributing to **Chalo Jantar Mantar**! We welcome bug fixes, satirical lore additions, new obstacles, sound enhancements, and performance optimizations.
 
 ---
 
-## 🛠️ How You Can Contribute
+## 🌟 How to Contribute
 
-### 1. Adding New Slogans & Speech Lines
-Edit `src/scenes/GameScene.ts` and `src/core/SpeechVoiceSystem.ts`:
-```ts
-const slogans = [
-  'चलो जंतर मंतर!',
-  'इंक़लाब ज़िन्दाबाद!',
-  'आज़ादी!',
-  'YOUR_NEW_SLOGAN_HERE!'
-];
-```
-
-### 2. Creating New Levels & Delhi Routes
-Add a new level object to `src/config/levelData.ts`:
-```ts
-{
-  id: 5,
-  key: 'level_5',
-  name: 'India Gate to Kartavya Path',
-  subtitle: 'Grand Boulevard March',
-  difficulty: DIFFICULTY.HARD,
-  difficultyLabel: 'CUSTOM HARD',
-  roadLength: 4200,
-  roadWidth: 380,
-  minCrowdForVictory: 35,
-  targetDistance: 4000,
-  barricadeCount: 18,
-  barricadeTiers: 3,
-  bystanderCount: 40,
-  policeCount: 25,
-  ...
-}
-```
-
-### 3. Adding New Delhi Vehicles & Satirical Props
-- Define sprite graphics in `src/scenes/BootScene.ts`.
-- Implement AI and physics in `src/entities/Vehicle.ts`.
+1. **Fork the Repository**
+2. **Clone your fork**:
+   ```bash
+   git clone https://github.com/<your-username>/janter-mantar-game.git
+   cd country_defender
+   ```
+3. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
+4. **Create a Feature Branch**:
+   ```bash
+   git checkout -b feature/awesome-new-feature
+   ```
+5. **Develop & Test Locally**:
+   ```bash
+   npm run dev
+   ```
+6. **Verify Strict TypeScript Compilation**:
+   ```bash
+   npm run build
+   ```
+   *(Ensure zero TypeScript errors before committing!)*
+7. **Commit & Push**:
+   ```bash
+   git commit -m "feat: Add DTC electric bus variant and horn sound"
+   git push origin feature/awesome-new-feature
+   ```
+8. **Open a Pull Request** with a brief summary of what your change introduces.
 
 ---
 
-## ⚖️ Guidelines for Contributions
-- **No Real Names:** Never use real names or likenesses of living politicians or individuals to protect from defamation.
-- **Pure Code & Procedural Assets:** Do not commit copyrighted MP3s, movie clips, or commercial game textures. All audio and graphics should remain procedural or royalty-free CC0.
-- **Keep Performance at 60 FPS:** Verify that `npm run build` succeeds without any TypeScript errors.
+## 📐 Code Style & Engineering Standards
+
+- **Language**: TypeScript (ES2023+). Strict type safety without `any`.
+- **Game Engine**: Phaser 3 / 4.
+- **Audio Philosophy**: We prioritize zero-latency procedural Web Audio synthesis in `SoundSystem.ts`. If adding sound effects, write an oscillator/envelope generator rather than bundling heavy audio files.
+- **Visuals**: Vector graphics generated directly via `Phaser.GameObjects.Graphics` inside `BootScene.ts`.
+- **Depth Sorting**: All moving dynamic entities must update their depth using standard Cartesian Y-coordinate sorting in `update()`.
 
 ---
 
-## 📜 License
-By contributing, you agree that your contributions will be licensed under the project's [MIT License](./LICENSE).
+## 💡 Ideas for Future Contributions
+
+- 🚊 **Delhi Metro Overpass**: Trains running on overhead tracks creating periodic shadows.
+- 🪧 **Customizable Placards**: Allow players to type custom protest slogans on banners.
+- 🌧️ **Delhi Smog & Weather Mode**: Dynamic AQI smog haze effects with mask loot power-ups.
+- 🏆 **Online Global Leaderboard**: Connect high scores to a Supabase or Firebase backend.
+
+Thank you for supporting Indian Indie Game Development! ⭐

@@ -8,6 +8,7 @@ export class BootScene extends Phaser.Scene {
   preload(): void {
     this.load.image('menu_bg', 'assets/menu_bg.jpg');
     this.load.image('victory_bg', 'assets/victory_bg.jpg');
+    this.load.image('detained_bg', 'assets/detained_bg.jpg');
   }
 
   create(): void {

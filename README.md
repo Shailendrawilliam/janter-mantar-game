@@ -1,132 +1,248 @@
-# Chalo Jantar Mantar (चलो जंतर मंतर)
-### Satirical Delhi Protest March Simulator in 2.5D Isometric View
+<div align="center">
 
-Built with **Phaser 3**, **TypeScript**, and **Vite** — engineered with clean modular architecture for **PC (Desktop/Web)** and ready for **iOS (Mobile App via Capacitor / WebView)**.
+# 🏛️ Chalo Jantar Mantar (चलो जंतर मंतर)
+### *A Satirical 2.5D Isometric Delhi Protest March Simulator*
+
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Phaser 3](https://img.shields.io/badge/Engine-Phaser_3-orange?style=for-the-badge&logo=phaser)](https://phaser.io/)
+[![Vite](https://img.shields.io/badge/Bundler-Vite_8-purple?style=for-the-badge&logo=vite)](https://vitejs.dev/)
+[![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20iOS%20%7C%20Android-green?style=for-the-badge)](https://developer.mozilla.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen?style=for-the-badge)](CONTRIBUTING.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
+
+<br/>
+
+![Chalo Jantar Mantar - Grand March Banner](screenshots/jantar_mantar_rally_banner.jpg)
+
+<p align="center">
+  <b>Lead the Kafila • Dodge Section 144 Crackdowns • Chant Slogans • Reach the Historic Samrat Yantra</b>
+</p>
+
+[Play Demo](#-quick-start) • [Game Features](#-key-features) • [Controls](#-controls) • [Levels](#-level-design--hardness-rating) • [Architecture](#-software-architecture) • [Contribute](#-contributing--open-source)
+
+</div>
 
 ---
 
-## 🏛️ Game Overview & Satirical Delhi Lore
+## 📖 Satirical Delhi Lore & Game Overview
 
-Inspired by real-world Delhi marches heading towards the historic protest grounds at **Jantar Mantar**, players take on the role of the **Protest Leader (*Andolankari*)**:
-- Recruit citizens into your growing **Kafila** (crowd) along the boulevards.
-- Chant slogans (*"Chalo Jantar Mantar!"*, *"Azaadi!"*, *"Hum Honge Kaamyab!"*) to raise morale and expand your reach.
-- Smash through iconic **Delhi Police yellow steel barricades** using crowd weight and sprint charges.
-- Dodge police cordons, **Tear Gas smoke shells**, high-pressure **Water Cannon ("Vajra") trucks**, and **Internet Jammer vans** (which scramble your GPS radar under Section 144).
-- Overcome DTC bus traffic jams and reach the finish line at the **Samrat Yantra** monument to establish a victorious dharna!
+Inspired by Delhi's iconic marches that navigate the historic radial boulevards from ITO and Mandi House up to Connaught Place and Parliament Street, **Chalo Jantar Mantar** is a high-octane 2.5D isometric crowd simulation game.
+
+You step into the boots of the **Protest Leader (*आंदोलनकारी*)**:
+- 🚩 **Gather Your Kafila**: Rally neutral citizens and bystanders into an unstoppable march.
+- 📢 **Chant Slogans**: Raise morale with slogans (*"Chalo Jantar Mantar!"*, *"Azaadi!"*, *"Hum Honge Kaamyab!"*) to expand your crowd aura and push back solitary constables.
+- 🚧 **Smash Through Barricades**: Delhi Police yellow steel barricades block key intersections. Gather crowd mass and activate sprint dashes to break through.
+- 🚨 **Section 144 Detention Hazards**: Avoid police encirclement! If your detention meter fills to 100%, you get **DETAINED** and diverted to the Talkatora Stadium holding camp!
+- ⚖️ **Anticipatory Bail (*वकील साहब*)**: Collect community ₹ Chanda funds to summon a bail lawyer, clearing your detention meter instantly.
+- 🚜 **Tractor Rally Power-Up**: Mount the mighty Swaraj green tractor to crush obstacles and become invincible.
+- 🏛️ **Destination Jantar Mantar**: Overcome tear gas smoke, Vajra water cannons, and GPS internet jammers to establish your dharna at the terracotta **Samrat Yantra** monument!
 
 ---
 
-## 🎮 Controls
+## 📸 In-Game Visuals & Cinematic Art
 
-### PC (Desktop / Laptop)
-| Action | Key / Control |
+| The March Towards Parliament | Police Section 144 Crackdown | Victory at Samrat Yantra |
+|:---:|:---:|:---:|
+| ![The Rally](screenshots/jantar_mantar_rally_banner.jpg) | ![Detention Barricade](screenshots/police_detention_barricade.jpg) | ![Celebration](screenshots/victory_celebration.jpg) |
+| *Crowds gathering across Delhi boulevards* | *Rainy night barricades, flashing sirens & Section 144* | *Tricolor confetti & fireworks at Jantar Mantar* |
+
+---
+
+## ⚡ Key Features
+
+- **🎮 Dual-Platform Input Support**: Seamlessly engineered for **PC (Desktop/Laptop keyboard)** and **Mobile (iOS & Android touch screen)** with custom dual-virtual joystick & quick-action buttons.
+- **👥 Flocking & Crowd AI (Swarm Dynamics)**: Crowd members follow boids-inspired physics algorithms (alignment, separation, cohesion), scattering when hit by tear gas or water cannon jets and regrouping when slogans are chanted.
+- **🔊 100% Procedural Web Audio Synthesizer**: Zero external MP3/WAV download latency! A built-in synthesizer dynamically generates Indian dholak beats, police sirens, crowd roars, megaphone chants, lathi clashes, and victory fanfares via the Web Audio API.
+- **⚠️ Section 144 Detention Mechanic**: Realistic escalation system featuring police constables, lathi squads, riot shield units, and surveillance drones.
+- **🚚 Authentic Delhi Vehicles & Props**:
+  - DTC Low-Floor Green Buses (create street traffic gridlocks)
+  - Delhi Auto-Rickshaws (weaving obstacles)
+  - Police PCR Gypsies & Surveillance Drones with spotlight detection cones
+  - *Vajra* Water-Cannon Riot Trucks with particle physics
+  - Mobile Internet Jammer Vans (scrambles GPS radar in real time)
+  - Community Langar & Cutting Chai Stalls (restore stamina and crowd count)
+
+---
+
+## 🕹️ Controls
+
+### 💻 PC & Laptop (Desktop / Web)
+| Action | Keybinding |
 |---|---|
-| **Move** | `W`, `A`, `S`, `D` or `Arrow Keys` |
-| **Slogan / Chant** | `Spacebar` / `C` / `E` |
-| **Sprint / Dash** | Hold `Shift` |
-| **Sound Toggle** | Top-right sound button |
+| **Movement** | `W`, `A`, `S`, `D` or `Arrow Keys` |
+| **Slogan / Chant (नारेबाज़ी)** | `Spacebar` or `C` or `E` |
+| **Sprint / Dash (दौड़)** | Hold `Shift` |
+| **Anticipatory Bail (वकील)** | `B` (Requires ₹50 Chanda) |
+| **Sound Mute / Unmute** | Audio icon (Top-Right HUD) |
 
-### Mobile / Touch (iOS & Android)
-| Action | Touch Control |
+### 📱 Mobile & Tablet (iOS Safari / Android Chrome / Capacitor App)
+| Action | Mobile Touch Control |
 |---|---|
-| **Movement** | Virtual Analog Joystick (bottom-left touch zone) |
-| **Slogan / Chant** | Green `📢 CHANT` action button |
-| **Sprint / Dash** | Orange `⚡ DASH` action button |
+| **Movement** | Floating Analog Virtual Joystick (bottom-left area) |
+| **Chant Slogan** | Green `📢 CHANT` button (bottom-right) |
+| **Sprint Charge** | Orange `⚡ DASH` button (bottom-right) |
+| **Bail Button** | Blue `⚖️ BAIL` action button (bottom-right) |
 
 ---
 
-## 🗺️ Levels & Hardness Ratings
+## 🗺️ Level Design & Hardness Rating
+
+```
+  [Level 1: Low Hardness]          [Level 2: Mid Hardness]          [Level 3: Hard / Insane]
+   ITO Chowk → Tilak Marg       Mandi House → Connaught Place     Parliament St → Jantar Mantar
+  ━━━━━━━━━━━━━━━━━━━━━━━━━    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  • Target: 8+ Citizens         • Target: 16+ Citizens           • Target: 28+ Citizens
+  • Single barricades           • Double-tier barricades         • Triple-tier riot walls
+  • Solitary constables         • Tear Gas & Jammer Vans         • Vajra Water Cannons & Drones
+```
 
 1. **Level 1: ITO Chowk to Tilak Marg (`LOW HARDNESS`)**
-   - *Objective:* Gather 8+ citizens into your Kafila.
-   - *Obstacles:* Light police constables, slow DTC buses, single-layer yellow barricades.
-   - *Hazards:* None (Tear gas & water cannons disabled).
+   - Ideal for learning crowd gathering, movement, and sprint charges.
+   - Low police presence; single-layer yellow barricades; leisurely DTC bus traffic.
 
 2. **Level 2: Mandi House to Connaught Place Circle (`MID HARDNESS`)**
-   - *Objective:* Gather 16+ citizens.
-   - *Obstacles:* Double-layer reinforced barricades, Section 144 zones, DTC gridlocks & auto-rickshaws.
-   - *Hazards:* Tear Gas squads dropping disorienting smoke, Mobile Internet Jammer van disabling 5G radar.
+   - High traffic density with auto-rickshaws and barricades.
+   - Police deployment of Tear Gas canisters and Mobile Internet Jammer vans that scramble your radar under Section 144.
 
 3. **Level 3: Parliament Street to Jantar Mantar (`TOUGH / HARD`)**
-   - *Objective:* Gather 28+ citizens to storm the barricades.
-   - *Obstacles:* 3-tier steel riot barricades, riot police locking shield walls, PCR Gypsy patrols.
-   - *Hazards:* Armored **Vajra Water-Cannon trucks** firing high-pressure jets, tear gas shells, continuous Section 144 alerts.
-   - *Climax:* The terracotta-red **Samrat Yantra** finish stage with tricolor confetti celebration!
+   - Massive 3-layer steel barricades and high-speed riot police.
+   - High-pressure *Vajra* Water Cannon trucks pushing marchers backward, drone spotlights, and intense Section 144 crackdowns.
+   - Victorious finale at the **Samrat Yantra** observatory stage!
 
 ---
 
-## 🏗️ Architecture & Codebase Structure
+## 🏗️ Software Architecture
+
+The project is structured according to international software engineering standards: strict TypeScript typing, modular scene graph pipelines, procedural vector sprite generation, and entity-component logic.
 
 ```
 country_defender/
-├── index.html                  # Mobile-ready HTML with iOS viewport tags & status bar styling
+├── public/
+│   ├── assets/                 # High-resolution background art (menu, victory, detained)
+│   ├── favicon.svg             # Vector game favicon
+│   └── manifest.json           # PWA progressive web app manifest
+├── screenshots/                # Showcase artwork & gameplay screenshots for GitHub
 ├── src/
-│   ├── main.ts                 # Application entry point & Phaser initialization
-│   ├── style.css               # Responsive styling, touch-action handling, iOS safe area insets
+│   ├── main.ts                 # App bootstrap, canvas mounting, font loading
+│   ├── style.css               # Responsive full-bleed canvas, iOS safe-area handling
 │   ├── config/
-│   │   ├── constants.ts        # Isometric tile dimensions, game resolutions, color palettes
-│   │   ├── levelData.ts        # Level definitions, parameters, and difficulty presets
-│   │   └── gameConfig.ts       # Phaser scale manager, multi-touch input, scene pipeline
+│   │   ├── constants.ts        # Isometric projection angles, game dimensions, physics constants
+│   │   ├── gameConfig.ts       # Phaser ScaleManager, Multi-touch, Scene registrations
+│   │   └── levelData.ts        # Level metadata, route distances, hazard spawn tables
 │   ├── core/
-│   │   ├── IsometricUtils.ts   # 2.5D Isometric transformations & dynamic depth sorting
-│   │   ├── SoundSystem.ts      # Web Audio procedural sound synthesizer (sirens, dhol, crash, fanfare)
-│   │   └── InputHandler.ts     # Unified keyboard + mobile virtual joystick & touch handler
+│   │   ├── IsometricUtils.ts   # 2.5D Screen-to-Cartesian & Cartesian-to-Screen transforms
+│   │   ├── SoundSystem.ts      # Web Audio procedural sound synthesizer (0 audio file latency)
+│   │   ├── InputHandler.ts     # Unified Desktop (WASD) + Mobile Touch Virtual Joystick
+│   │   └── SaveManager.ts      # Persistent local storage for high scores, names, progress
 │   ├── entities/
-│   │   ├── Player.ts           # Protest leader with sprint energy, detention meter, flag animation
-│   │   ├── CrowdMember.ts      # Flocking crowd with bystander, following, and dispersed states
-│   │   ├── PoliceOfficer.ts    # Constable and Riot police AI (patrol, chase, whistle, detain)
-│   │   ├── Barricade.ts        # Yellow Delhi Police barricades with HP, shake, and topple physics
-│   │   ├── Vehicle.ts          # DTC buses, Auto-rickshaws, PCR Gypsies, Vajra, Jammer vans
-│   │   ├── Hazards.ts          # Tear Gas smoke clouds and high-pressure Water Cannon jets
-│   │   └── MediaCrew.ts        # TV news crew granting crowd and morale boosts
+│   │   ├── Player.ts           # Leader mechanics (sprint stamina, detention meter, flag physics)
+│   │   ├── CrowdMember.ts      # Autonomous flocking crowd (follower states, chant reactions)
+│   │   ├── PoliceOfficer.ts    # Finite state machine (Patrol, Whistle, Chase, Detain)
+│   │   ├── Barricade.ts        # Physics-enabled yellow Delhi Police barricades with HP
+│   │   ├── Vehicle.ts          # DTC Buses, Auto-Rickshaws, PCR Gypsies, Vajra, Jammer Vans
+│   │   └── Hazards.ts          # Tear Gas volumetric smoke & Water Cannon fluid jets
 │   └── scenes/
-│       ├── BootScene.ts        # Procedural texture generator (sharp 2.5D graphics, 0 external asset load)
-│       ├── MenuScene.ts        # Title screen, Delhi skyline, animated preview, help modal
-│       ├── LevelSelectScene.ts # 3 Difficulty cards (Low, Mid, Hard) with route stats
-│       ├── GameScene.ts        # Core gameplay loop, camera tracking, crowd physics, detention checks
-│       ├── UIScene.ts          # HUD overlay: Kafila counter, detention bar, radar, mobile joystick
-│       ├── VictoryScene.ts     # Celebration at Jantar Mantar with tricolor confetti & statistics
-│       └── GameOverScene.ts    # Satirical newspaper headline ("Talkatora Stadium" detention camp)
+│       ├── BootScene.ts        # Procedural texture generator (vector graphics cached to textures)
+│       ├── MenuScene.ts        # Title screen, high score records, guide modals
+│       ├── LevelSelectScene.ts # Mission selection cards with hardness badges
+│       ├── GameScene.ts        # Core loop: entity updating, collision resolution, camera tracking
+│       ├── UIScene.ts          # HUD overlay: Minimap radar, crowd counter, detention status, controls
+│       ├── VictoryScene.ts     # Samrat Yantra celebration, score breakdown, confetti
+│       └── GameOverScene.ts    # Section 144 "DETAINED" debrief & Talkatora Stadium diversion lore
+└── tsconfig.json               # Strict TypeScript configuration
 ```
 
 ---
 
-## 📱 Porting to iOS App (Capacitor)
+## 🚀 Quick Start
 
-The game is pre-configured with responsive viewport meta tags, safe-area-insets, multi-touch listeners, and touch-action suppression to wrap into an iOS app.
+### Prerequisites
+- [Node.js](https://nodejs.org/) (version 18.0.0 or higher recommended)
+- [npm](https://www.npmjs.com/) (version 9.0.0 or higher)
 
-To generate an iOS Xcode project:
-
-```bash
-# 1. Build the production web bundle
-npm run build
-
-# 2. Install Capacitor CLI and iOS bridge
-npm install @capacitor/core @capacitor/cli @capacitor/ios
-
-# 3. Initialize Capacitor
-npx cap init "Chalo Jantar Mantar" "com.chalojantarmantar.game" --web-dir=dist
-
-# 4. Add the iOS platform
-npx cap add ios
-
-# 5. Open in Xcode
-npx cap open ios
-```
-In Xcode, set your Development Team and click **Run** to launch directly on iPhone Simulator or physical iOS devices!
-
----
-
-## 🚀 Running Locally
+### Installation & Run
 
 ```bash
-# Install dependencies
+# 1. Clone the repository
+git clone https://github.com/Shailendrawilliam/janter-mantar-game.git
+
+# 2. Navigate to project directory
+cd country_defender
+
+# 3. Install dependencies
 npm install
 
-# Start development server
+# 4. Start local development server
 npm run dev
-
-# Build production bundle
-npm run build
 ```
-Open **`http://127.0.0.1:5173/`** in your browser to play!
+
+Open **`http://localhost:5173/`** in your browser to launch the game!
+
+### Production Build & Type Checking
+
+```bash
+# Run strict TypeScript compiler verification & Vite bundle optimization
+npm run build
+
+# Preview production build locally
+npm run preview
+```
+
+---
+
+## 📱 Exporting to iOS & Android Native App
+
+This codebase is pre-configured with responsive viewport metadata, iOS safe-area insets, and multi-touch gesture handlers ready for **Capacitor**:
+
+```bash
+# 1. Build web assets
+npm run build
+
+# 2. Install Capacitor
+npm install @capacitor/core @capacitor/cli @capacitor/ios @capacitor/android
+
+# 3. Initialize App
+npx cap init "Chalo Jantar Mantar" "com.chalojantarmantar.game" --web-dir=dist
+
+# 4. Add iOS & Android platforms
+npx cap add ios
+npx cap add android
+
+# 5. Open Xcode or Android Studio
+npx cap open ios
+```
+
+---
+
+## 🌟 Code Quality & Engineering Highlights
+
+- ✅ **Strict TypeScript 5.0+**: Zero implicit `any`, full type contracts for entities, scenes, and events.
+- ✅ **Deterministic Isometric Depth Sorting**: Every frame dynamically sorts sprites based on Cartesian Y-coordinates to eliminate visual z-fighting.
+- ✅ **Zero Asset Bloat**: Procedural generation in `BootScene` ensures instantaneous load times and zero network overhead on mobile connections.
+- ✅ **Cross-Browser & Multi-Touch Compliant**: Fully responsive on Chrome, Safari, Firefox, Edge, and iOS WebViews with gesture locking (`touch-action: none`).
+
+---
+
+## 🤝 Contributing & Open Source
+
+Contributions, issue reports, and feature suggestions are warmly welcomed!
+
+1. **Fork** the project on GitHub.
+2. Create your feature branch (`git checkout -b feature/NewDelhiHazard`).
+3. Commit your changes (`git commit -m 'feat: Add Metro train overhead passing hazard'`).
+4. Push to your branch (`git push origin feature/NewDelhiHazard`).
+5. Open a **Pull Request**.
+
+If you enjoy the game or found the code helpful, please **give it a ⭐ Star**! It helps the project reach more contributors!
+
+---
+
+## 📜 Disclaimer & License
+
+*Chalo Jantar Mantar is a satirical work of parody and entertainment celebrating citizen unity and public spirit in a light-hearted simulation game. All characters, vehicles, and scenarios are fictional or satirical representations.*
+
+Distributed under the **MIT License**. See `LICENSE` for more details.
+
+<div align="center">
+  <sub>Made with ❤️ for Indian Indie Gaming & Open Source Community</sub>
+</div>
