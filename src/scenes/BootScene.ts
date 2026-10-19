@@ -93,6 +93,122 @@ export class BootScene extends Phaser.Scene {
     lamp.fillCircle(28, 8, 5);
     lamp.generateTexture('street_lamp', 36, 82);
     lamp.destroy();
+
+    // 8. Delhi Metro Elevated Pillar (P-108 with DMRC logo & coaching posters)
+    const pillarW = 44;
+    const pillarH = 120;
+    const pillar = this.make.graphics({ x: 0, y: 0 });
+    pillar.fillStyle(0x000000, 0.4);
+    pillar.fillEllipse(pillarW / 2, pillarH - 6, pillarW - 4, 16);
+    // Concrete shaft
+    pillar.fillStyle(0x95a5a6, 1);
+    pillar.fillRoundedRect(6, 10, pillarW - 12, pillarH - 24, 4);
+    // Yellow & Black hazard base
+    for (let i = 0; i < 4; i++) {
+      pillar.fillStyle(i % 2 === 0 ? 0xf1c40f : 0x111111, 1);
+      pillar.fillRect(6, pillarH - 26 - i * 6, pillarW - 12, 6);
+    }
+    // DMRC Blue / Red line marker
+    pillar.fillStyle(0x2980b9, 1);
+    pillar.fillRect(6, 32, pillarW - 12, 10);
+    // Delhi coaching poster on pillar ("IAS / SSC" satire)
+    pillar.fillStyle(0xfff9e6, 0.95);
+    pillar.fillRect(10, 48, pillarW - 20, 18);
+    pillar.fillStyle(0xc0392b, 1);
+    pillar.fillRect(12, 52, pillarW - 24, 3);
+    pillar.fillStyle(0x2c3e50, 1);
+    pillar.fillRect(12, 58, pillarW - 24, 2);
+    pillar.fillRect(12, 62, pillarW - 28, 2);
+    // Top elevated track bracket
+    pillar.fillStyle(0x7f8c8d, 1);
+    pillar.fillRoundedRect(2, 6, pillarW - 4, 10, 2);
+    pillar.generateTexture('delhi_metro_pillar', pillarW, pillarH);
+    pillar.destroy();
+
+    // 9. Delhi DTC Bus Stop Shelter (with bench & route signboard)
+    const busStopW = 86;
+    const busStopH = 74;
+    const busStop = this.make.graphics({ x: 0, y: 0 });
+    busStop.fillStyle(0x000000, 0.35);
+    busStop.fillEllipse(busStopW / 2, busStopH - 6, busStopW - 8, 14);
+    // Green steel awning
+    busStop.fillStyle(0x27ae60, 1);
+    busStop.fillRoundedRect(4, 6, busStopW - 8, 16, 4);
+    busStop.fillStyle(0xf1c40f, 1);
+    busStop.fillRect(4, 18, busStopW - 8, 4);
+    // Stainless steel support poles
+    busStop.lineStyle(3, 0xbdc3c7, 1);
+    busStop.lineBetween(12, 22, 12, busStopH - 8);
+    busStop.lineBetween(busStopW - 12, 22, busStopW - 12, busStopH - 8);
+    // Passenger bench
+    busStop.fillStyle(0x95a5a6, 1);
+    busStop.fillRoundedRect(16, busStopH - 24, busStopW - 32, 6, 2);
+    // Route map board
+    busStop.fillStyle(0xffffff, 0.9);
+    busStop.fillRect(busStopW / 2 - 14, 26, 28, 20);
+    busStop.fillStyle(0xe74c3c, 1);
+    busStop.fillRect(busStopW / 2 - 12, 28, 24, 4);
+    busStop.generateTexture('bus_stop_shelter', busStopW, busStopH);
+    busStop.destroy();
+
+    // 10. Delhi Langar & Chai Stall (Community Seva Station)
+    const stallW = 76;
+    const stallH = 72;
+    const stall = this.make.graphics({ x: 0, y: 0 });
+    stall.fillStyle(0x000000, 0.4);
+    stall.fillEllipse(stallW / 2, stallH - 6, stallW - 6, 16);
+    // Saffron Canopy Tent
+    stall.fillStyle(0xff9933, 1);
+    stall.fillTriangle(4, 24, stallW / 2, 4, stallW - 4, 24);
+    stall.fillStyle(0xffffff, 1);
+    stall.fillRect(4, 24, stallW - 8, 6);
+    // Marigold Garland decoration
+    for (let i = 0; i < 7; i++) {
+      stall.fillStyle(i % 2 === 0 ? 0xf1c40f : 0xe67e22, 1);
+      stall.fillCircle(8 + i * 10, 30, 3);
+    }
+    // Wooden Table
+    stall.fillStyle(0x8e44ad, 1);
+    stall.fillRect(8, 36, stallW - 16, 26);
+    // Steaming Brass Chai Samovar / Degchi
+    stall.fillStyle(0xf39c12, 1);
+    stall.fillRoundedRect(14, 28, 16, 18, 3);
+    stall.fillStyle(0xd35400, 1);
+    stall.fillRect(16, 26, 12, 3);
+    // Samosa Plate
+    stall.fillStyle(0xecf0f1, 1);
+    stall.fillEllipse(stallW - 24, 40, 20, 8);
+    stall.fillStyle(0xd35400, 1);
+    stall.fillTriangle(stallW - 30, 42, stallW - 25, 34, stallW - 20, 42);
+    stall.fillTriangle(stallW - 24, 42, stallW - 19, 34, stallW - 14, 42);
+    stall.generateTexture('langar_stall', stallW, stallH);
+    stall.destroy();
+
+    // 11. Delhi Monsoon Pothole / Water Puddle
+    const potW = 54;
+    const potH = 26;
+    const pot = this.make.graphics({ x: 0, y: 0 });
+    pot.fillStyle(0x161a22, 1);
+    pot.fillEllipse(potW / 2, potH / 2, potW - 6, potH - 6);
+    pot.fillStyle(0x1f2d3d, 0.9);
+    pot.fillEllipse(potW / 2, potH / 2, potW - 16, potH - 12);
+    pot.fillStyle(0x5dade2, 0.5);
+    pot.fillEllipse(potW / 2 - 4, potH / 2 - 2, 12, 5);
+    pot.generateTexture('pothole_puddle', potW, potH);
+    pot.destroy();
+
+    // 12. Road Speed Breaker (Yellow & Black chevron stripes across lane)
+    const sbW = 128;
+    const sbH = 20;
+    const sb = this.make.graphics({ x: 0, y: 0 });
+    sb.fillStyle(0x111111, 0.9);
+    sb.fillRect(0, 0, sbW, sbH);
+    for (let i = 0; i < 8; i++) {
+      sb.fillStyle(0xf1c40f, 1);
+      sb.fillTriangle(i * 16, sbH, i * 16 + 8, 0, i * 16 + 16, sbH);
+    }
+    sb.generateTexture('speed_breaker', sbW, sbH);
+    sb.destroy();
   }
 
   private createCharacters(): void {
@@ -385,8 +501,18 @@ export class BootScene extends Phaser.Scene {
     tr.fillRoundedRect(58, 40, 12, 34, 4);
     // Front Left Wheel
     tr.fillRoundedRect(10, 18, 8, 20, 3);
-    // Front Right Wheel
-    tr.fillRoundedRect(58, 18, 8, 20, 3);
+    // Rear Indian Tiranga flag
+    tr.lineStyle(2, 0xbdc3c7, 1);
+    tr.lineBetween(48, 56, 48, 28);
+    tr.fillStyle(0xff9933, 1);
+    tr.fillRect(48, 28, 16, 5);
+    tr.fillStyle(0xffffff, 1);
+    tr.fillRect(48, 33, 16, 5);
+    tr.fillStyle(0x138808, 1);
+    tr.fillRect(48, 38, 16, 5);
+    tr.fillStyle(0x000080, 1);
+    tr.fillCircle(56, 35, 1.5);
+
     tr.generateTexture('vehicle_tractor', trW, trH);
     tr.destroy();
   }

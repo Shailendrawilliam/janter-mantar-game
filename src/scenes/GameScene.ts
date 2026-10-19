@@ -36,6 +36,9 @@ export class GameScene extends Phaser.Scene {
   private tearGasHazards: TearGasHazard[] = [];
   private waterJets: WaterJetHazard[] = [];
   private finishMonument!: Phaser.GameObjects.Sprite;
+  private langarStalls: Array<{ sprite: Phaser.GameObjects.Sprite; used: boolean }> = [];
+  private busStops: Array<{ sprite: Phaser.GameObjects.Sprite; recruited: boolean }> = [];
+  private potholes: Array<Phaser.GameObjects.Sprite> = [];
 
   // State & Ultimate
   private barricadesBreached = 0;
@@ -66,6 +69,9 @@ export class GameScene extends Phaser.Scene {
     this.tractors = [];
     this.tearGasHazards = [];
     this.waterJets = [];
+    this.langarStalls = [];
+    this.busStops = [];
+    this.potholes = [];
     this.barricadesBreached = 0;
     this.isGameOver = false;
     this.isVictory = false;
@@ -146,24 +152,75 @@ export class GameScene extends Phaser.Scene {
     const zebra3 = this.add.image(ROAD_BOUNDS.CENTER_X, ROAD_BOUNDS.FINISH_Y + 160, 'zebra_crossing_h');
     zebra3.setDepth(-980);
 
-    // 8. Sidewalk Trees and Delhi Street Lamps
+    // 8. Elevated Delhi Metro Pillars (DMRC Viaduct along boulevard edge)
+    for (let y = 140; y < totalH; y += 320) {
+      const pillarW = this.add.image(210, y, 'delhi_metro_pillar');
+      pillarW.setOrigin(0.5, 0.9);
+      pillarW.setDepth(y * 10 - 2);
+
+      const pillarE = this.add.image(814, y + 160, 'delhi_metro_pillar');
+      pillarE.setOrigin(0.5, 0.9);
+      pillarE.setDepth((y + 160) * 10 - 2);
+    }
+
+    // 9. Sidewalk Trees, Street Lamps, and Bus Stops
     for (let y = 100; y < totalH; y += 180) {
-      const treeW = this.add.image(110, y, 'delhi_tree');
+      const treeW = this.add.image(105, y, 'delhi_tree');
       treeW.setOrigin(0.5, 0.9);
       treeW.setDepth(y * 10);
 
-      const treeE = this.add.image(914, y + 90, 'delhi_tree');
+      const treeE = this.add.image(919, y + 90, 'delhi_tree');
       treeE.setOrigin(0.5, 0.9);
       treeE.setDepth((y + 90) * 10);
 
       if (y % 360 === 0) {
-        const lampW = this.add.image(220, y + 30, 'street_lamp');
+        const lampW = this.add.image(235, y + 30, 'street_lamp');
         lampW.setOrigin(0.5, 0.95);
         lampW.setDepth((y + 30) * 10);
 
-        const lampE = this.add.image(804, y + 210, 'street_lamp');
+        const lampE = this.add.image(790, y + 210, 'street_lamp');
         lampE.setOrigin(0.5, 0.95);
         lampE.setDepth((y + 210) * 10);
+      }
+    }
+
+    // 10. Delhi DTC Bus Stop Shelters with waiting commuters
+    const busStopInterval = Math.max(700, Math.floor(totalH / 4));
+    for (let y = this.config.roadLength - 500; y > ROAD_BOUNDS.FINISH_Y + 300; y -= busStopInterval) {
+      const isWest = y % 2 === 0;
+      const bx = isWest ? 120 : 904;
+      const bShelter = this.add.sprite(bx, y, 'bus_stop_shelter');
+      bShelter.setOrigin(0.5, 0.85);
+      bShelter.setDepth(y * 10);
+      this.busStops.push({ sprite: bShelter, recruited: false });
+
+      // Spawn waiting bystanders at the shelter
+      for (let p = 0; p < 2; p++) {
+        const commuter = new CrowdMember(this, bx + (p === 0 ? -16 : 16), y + 10, p);
+        this.crowd.push(commuter);
+      }
+    }
+
+    // 11. Community Langar & Chai Seva Stalls on sidewalks
+    const langarInterval = Math.max(650, Math.floor(totalH / 4));
+    for (let y = this.config.roadLength - 350; y > ROAD_BOUNDS.FINISH_Y + 250; y -= langarInterval) {
+      const isWest = (y / langarInterval) % 2 === 0;
+      const lx = isWest ? 140 : 884;
+      const lStall = this.add.sprite(lx, y, 'langar_stall');
+      lStall.setOrigin(0.5, 0.85);
+      lStall.setDepth(y * 10);
+      this.langarStalls.push({ sprite: lStall, used: false });
+    }
+
+    // 12. Delhi Monsoon Potholes / Puddles on asphalt road lanes
+    const laneCenters = [315, 446, 577, 708];
+    for (let y = this.config.roadLength - 300; y > ROAD_BOUNDS.FINISH_Y + 150; y -= 240) {
+      if (Math.random() < 0.65) {
+        const px = laneCenters[Math.floor(Math.random() * laneCenters.length)] + Phaser.Math.Between(-20, 20);
+        const pothole = this.add.sprite(px, y, 'pothole_puddle');
+        pothole.setOrigin(0.5, 0.5);
+        pothole.setDepth(-982);
+        this.potholes.push(pothole);
       }
     }
 
@@ -314,7 +371,8 @@ export class GameScene extends Phaser.Scene {
 
     this.updateCrowdMembers(delta, followingCrowd.length);
     this.updatePolice(delta, crowdCount);
-    this.updateTractors(delta);
+    this.updateTractors(delta, input.vx);
+    this.updateInteractiveStreetFeatures();
     this.updateBarricades(crowdCount);
     this.updateVehiclesAndHazards(delta);
     this.updateMediaCrews();
@@ -405,32 +463,102 @@ export class GameScene extends Phaser.Scene {
     const tr = new RallyTractor(this, this.player.x, this.player.y - 45);
     this.tractors.push(tr);
     this.speechSystem.speakTractor();
-    this.soundSystem.playMassRushAlarm();
-    this.showComicSpeechBubble(tr.x, tr.y - 45, '🚜 RALLY TRACTOR AAGE BADHAO!', '#27ae60', 14);
+    this.soundSystem.playDelhiTruckHorn();
+    this.showComicSpeechBubble(tr.x, tr.y - 45, '🚜 RALLY TRACTOR! PRESS "W" TO MOUNT!', '#27ae60', 14);
 
     const uiScene = this.scene.get('UIScene') as UIScene;
     if (uiScene?.addEventFeedItem) {
-      uiScene.addEventFeedItem('🚜 Rally Tractor summoned as Battering Ram!', '#2ecc71');
+      uiScene.addEventFeedItem('🚜 Rally Tractor summoned! Walk into it to MOUNT & DRIVE!', '#2ecc71');
     }
   }
 
-  private updateTractors(delta: number): void {
+  private updateTractors(delta: number, steerX = 0): void {
     this.tractors = this.tractors.filter((tr) => {
-      const active = tr.updateTractor(delta);
+      // Check if player climbs / mounts the tractor
+      const distToPlayer = Math.hypot(tr.x - this.player.x, tr.y - this.player.y);
+      if (distToPlayer < 45) {
+        if (!tr.isMounted) {
+          tr.isMounted = true;
+          this.soundSystem.playDelhiTruckHorn();
+          this.showComicSpeechBubble(tr.x, tr.y - 50, '🚜 MOUNTED TRACTOR! HORN OK TATA!', '#27ae60', 14);
+          const uiScene = this.scene.get('UIScene') as UIScene;
+          if (uiScene?.addEventFeedItem) {
+            uiScene.addEventFeedItem('🚜 Leader MOUNTED the Tractor! Barricades will be demolished!', '#2ecc71');
+          }
+        }
+        // Lock player position to tractor driver cabin
+        this.player.x = tr.x;
+        this.player.y = tr.y - 8;
+        this.player.detentionMeter = Math.max(0, this.player.detentionMeter - (delta / 1000) * 15);
+      }
+
+      const active = tr.updateTractor(delta, tr.isMounted ? steerX : 0);
       if (active) {
         // Tractor rams and obliterates barricades on contact
         this.barricades.forEach((b) => {
-          if (!b.isBreached && Math.hypot(b.x - tr.x, b.y - tr.y) < 55) {
+          if (!b.isBreached && Math.hypot(b.x - tr.x, b.y - tr.y) < 60) {
             b.damage(999);
             this.soundSystem.playHeavyBarricadeSmash();
             this.barricadesBreached++;
-            this.cameras.main.shake(200, 0.008);
+            this.cameras.main.shake(220, 0.01);
             new ShockwaveRing(this, b.x, b.y, 0x27ae60);
-            this.showComicSpeechBubble(b.x, b.y - 35, '🚜 RAMMED BY TRACTOR!', '#27ae60', 14);
+            this.showComicSpeechBubble(b.x, b.y - 35, '🚜 DEMOLISHED BY TRACTOR!', '#27ae60', 14);
           }
         });
       }
       return active;
+    });
+  }
+
+  private updateInteractiveStreetFeatures(): void {
+    // 1. Langar & Chai Seva Stalls
+    this.langarStalls.forEach((stall) => {
+      if (stall.used) return;
+      const dist = Math.hypot(stall.sprite.x - this.player.x, stall.sprite.y - this.player.y);
+      if (dist < 55) {
+        stall.used = true;
+        this.soundSystem.playChaiSlurp();
+        this.player.sprintEnergy = 100;
+        this.morale = Math.min(100, this.morale + 20);
+        this.showComicSpeechBubble(stall.sprite.x, stall.sprite.y - 45, '🍵 मुफ़्त लंगर! गरम चाय & समोसा (+100% STAMINA)', '#f39c12', 13);
+        const uiScene = this.scene.get('UIScene') as UIScene;
+        if (uiScene?.addEventFeedItem) {
+          uiScene.addEventFeedItem('🍵 Langar Chai Seva: +100% Sprint Stamina restored!', '#f39c12');
+        }
+      }
+    });
+
+    // 2. DTC Bus Stop Shelters
+    this.busStops.forEach((stop) => {
+      if (stop.recruited) return;
+      const dist = Math.hypot(stop.sprite.x - this.player.x, stop.sprite.y - this.player.y);
+      if (dist < 65) {
+        stop.recruited = true;
+        this.soundSystem.playRecruit();
+        this.morale = Math.min(100, this.morale + 15);
+        this.showComicSpeechBubble(stop.sprite.x, stop.sprite.y - 45, '🚌 +3 COMMUTERS JOINED FROM BUS STOP!', '#2ecc71', 12);
+        const uiScene = this.scene.get('UIScene') as UIScene;
+        if (uiScene?.addEventFeedItem) {
+          uiScene.addEventFeedItem('🚏 Commuters waiting at DTC Bus Stop joined the march!', '#2ecc71');
+        }
+        for (let i = 0; i < 3; i++) {
+          const m = new CrowdMember(this, stop.sprite.x + (i - 1) * 16, stop.sprite.y + 12, i);
+          this.recruitBystander(m);
+          this.crowd.push(m);
+        }
+      }
+    });
+
+    // 3. Monsoon Potholes
+    this.potholes.forEach((pot) => {
+      const dist = Math.hypot(pot.x - this.player.x, pot.y - this.player.y);
+      if (dist < 26 && !this.player.isSprinting) {
+        if (Math.random() < 0.08) {
+          this.soundSystem.playPotholeSplash();
+          this.player.y += 3;
+          this.showComicSpeechBubble(pot.x, pot.y - 25, '💦 SPLASH! DELHI POTHOLE!', '#3498db', 11);
+        }
+      }
     });
   }
 
@@ -456,30 +584,49 @@ export class GameScene extends Phaser.Scene {
 
   private triggerChant(): void {
     this.player.chantCooldown = 1.3;
-    this.morale = Math.min(100, this.morale + 15);
+    const isPerfectBeat = this.soundSystem.isBeatWindow();
+    const moraleBoost = isPerfectBeat ? 28 : 14;
+    this.morale = Math.min(100, this.morale + moraleBoost);
 
-    this.soundSystem.playChantShockwave();
-    new ShockwaveRing(this, this.player.x, this.player.y, 0xf2a900);
+    if (isPerfectBeat) {
+      this.soundSystem.playCrowdRoar();
+      this.soundSystem.playChantShockwave();
+      new ShockwaveRing(this, this.player.x, this.player.y, 0xffd700);
+      this.cameras.main.shake(180, 0.007);
+    } else {
+      this.soundSystem.playChantShockwave();
+      new ShockwaveRing(this, this.player.x, this.player.y, 0xf2a900);
+      this.cameras.main.shake(140, 0.005);
+    }
 
     const slogans = [
       'चलो जंतर मंतर!',
+      'इंक़लाब ज़िन्दाबाद!',
       'आज़ादी!',
       'हम होंगे कामयाब!',
-      'इंक़लाब ज़िन्दाबाद!',
       'हमारी माँगें पूरी करो!',
+      'नो चालान, ओनली क्रांति!',
+      'समोसा विदआउट चटनी बैन करो!',
+      'मंथली पास सस्ता करो!',
+      'आवाज़ दो, हम एक हैं!',
     ];
     const slogan = Phaser.Utils.Array.GetRandom(slogans);
-    this.showComicSpeechBubble(this.player.x, this.player.y - 45, slogan, '#f2a900');
+    const bubbleColor = isPerfectBeat ? '#ffd700' : '#f2a900';
+    this.showComicSpeechBubble(this.player.x, this.player.y - 45, slogan, bubbleColor, isPerfectBeat ? 15 : 13);
 
     // Real Hindi Speech
     this.speechSystem.speakSlogan(slogan);
 
     const uiScene = this.scene.get('UIScene') as UIScene;
     if (uiScene?.addEventFeedItem) {
-      uiScene.addEventFeedItem(`📢 Chanted: "${slogan}"`, '#f2a900');
+      if (isPerfectBeat) {
+        uiScene.addEventFeedItem(`🥁 PERFECT BEAT! "${slogan}" (+2X Josh!)`, '#ffd700');
+      } else {
+        uiScene.addEventFeedItem(`📢 Chanted: "${slogan}"`, '#f2a900');
+      }
     }
 
-    const recruitRadius = this.activeBuff === 'MEGAPHONE' ? 260 : 160;
+    const recruitRadius = (this.activeBuff === 'MEGAPHONE' ? 280 : 170) * (isPerfectBeat ? 1.3 : 1.0);
     this.crowd.forEach((member) => {
       if (member.state === 'BYSTANDER') {
         const dist = Math.hypot(member.x - this.player.x, member.y - this.player.y);
@@ -488,8 +635,6 @@ export class GameScene extends Phaser.Scene {
         }
       }
     });
-
-    this.cameras.main.shake(140, 0.005);
   }
 
   private updateCrowdMembers(delta: number, currentFollowers: number): void {

@@ -406,4 +406,114 @@ export class SoundSystem {
     osc.start(now);
     osc.stop(now + 0.05);
   }
+
+  public getDholakStep(): number {
+    return this.dholakStep;
+  }
+
+  /**
+   * Check if current time is aligned with the Dholak bass drop (for rhythm chant combo bonus)
+   */
+  public isBeatWindow(): boolean {
+    return this.dholakStep === 0 || this.dholakStep === 1 || this.dholakStep === 4 || this.dholakStep === 5;
+  }
+
+  /**
+   * Iconic Punjabi / Delhi Truck Horn melody ("Pee-Pooo-Pee-Paaaa")
+   */
+  public playDelhiTruckHorn(): void {
+    if (this.isMuted) return;
+    const ctx = this.initCtx();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const notes = [
+      { f: 440, t: 0.0, d: 0.12 },
+      { f: 554, t: 0.14, d: 0.12 },
+      { f: 659, t: 0.28, d: 0.16 },
+      { f: 880, t: 0.46, d: 0.32 },
+    ];
+
+    notes.forEach(({ f, t, d }) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(f, now + t);
+      gain.gain.setValueAtTime(0.28, now + t);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + t + d);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + t);
+      osc.stop(now + t + d);
+    });
+  }
+
+  /**
+   * Chai slurping & refreshing sound for Langar Stall
+   */
+  public playChaiSlurp(): void {
+    if (this.isMuted) return;
+    const ctx = this.initCtx();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, now);
+    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.18);
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.22);
+  }
+
+  /**
+   * Muddy Delhi pothole water splash sound
+   */
+  public playPotholeSplash(): void {
+    if (this.isMuted) return;
+    const ctx = this.initCtx();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const bufSize = Math.floor(ctx.sampleRate * 0.18);
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+    const noise = ctx.createBufferSource();
+    noise.buffer = buf;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(500, now);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.35, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    noise.start(now);
+    noise.stop(now + 0.18);
+  }
+
+  /**
+   * Massive crowd cheer roar
+   */
+  public playCrowdRoar(): void {
+    if (this.isMuted) return;
+    const ctx = this.initCtx();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(220, now);
+    osc.frequency.linearRampToValueAtTime(330, now + 0.25);
+    osc.frequency.linearRampToValueAtTime(180, now + 0.55);
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.55);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.55);
+  }
 }

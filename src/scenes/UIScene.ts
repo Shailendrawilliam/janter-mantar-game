@@ -46,6 +46,7 @@ export class UIScene extends Phaser.Scene {
   private boostBarGfx!: Phaser.GameObjects.Graphics;
   private rushBarGfx!: Phaser.GameObjects.Graphics;
   private hpLabelText!: Phaser.GameObjects.Text;
+  private beatIndicatorText!: Phaser.GameObjects.Text;
 
   // Tactical Mass Rush Button
   private rushBtn!: Phaser.GameObjects.Container;
@@ -285,7 +286,14 @@ export class UIScene extends Phaser.Scene {
 
     this.hpContainer = this.add.container(x, y);
 
-    this.hpLabelText = this.add.text(w / 2, -22, 'DETENTION SHIELD: 100% [SAFE]', {
+    this.beatIndicatorText = this.add.text(w / 2, -34, '🥁 DHOLAK RHYTHM • MARCHING', {
+      fontFamily: 'Outfit, sans-serif',
+      fontSize: '10px',
+      fontStyle: 'bold',
+      color: '#bdc3c7',
+    }).setOrigin(0.5);
+
+    this.hpLabelText = this.add.text(w / 2, -20, 'DETENTION SHIELD: 100% [SAFE]', {
       fontFamily: 'Outfit, sans-serif',
       fontSize: '11px',
       fontStyle: 'bold',
@@ -296,7 +304,7 @@ export class UIScene extends Phaser.Scene {
     this.boostBarGfx = this.add.graphics();
     this.hpBarGfx = this.add.graphics();
 
-    this.hpContainer.add([this.hpLabelText, this.rushBarGfx, this.boostBarGfx, this.hpBarGfx]);
+    this.hpContainer.add([this.beatIndicatorText, this.hpLabelText, this.rushBarGfx, this.boostBarGfx, this.hpBarGfx]);
   }
 
   private setupPubgTouchControls(): void {
@@ -584,6 +592,18 @@ export class UIScene extends Phaser.Scene {
     } else {
       this.hpLabelText.setText(`DETENTION SHIELD: ${shieldPct}% [SAFE]`);
       this.hpLabelText.setColor('#ffffff');
+    }
+
+    // Dynamic Dholak rhythm pulse indicator
+    const isBeat = SoundSystem.getInstance().isBeatWindow();
+    if (isBeat) {
+      this.beatIndicatorText.setText('🥁 JOSH BEAT DROP! CHANT NOW FOR +2X JOSH! 🥁');
+      this.beatIndicatorText.setColor('#f1c40f');
+      this.beatIndicatorText.setScale(1.08);
+    } else {
+      this.beatIndicatorText.setText('🥁 DHOLAK RHYTHM • MARCHING');
+      this.beatIndicatorText.setColor('#95a5a6');
+      this.beatIndicatorText.setScale(1.0);
     }
 
     if (this.rushBtn) {

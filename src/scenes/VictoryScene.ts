@@ -11,6 +11,7 @@ export class VictoryScene extends Phaser.Scene {
   create(data: { levelIndex: number; finalCrowd: number; barricadesBroken: number }): void {
     const sound = SoundSystem.getInstance();
     sound.playVictory();
+    sound.playCrowdRoar();
 
     const currentLevel = LEVELS[data.levelIndex] || LEVELS[0];
     const hasNextLevel = data.levelIndex + 1 < LEVELS.length;
@@ -103,12 +104,25 @@ export class VictoryScene extends Phaser.Scene {
       `STAGE AT JANTAR MANTAR: ESTABLISHED`,
     ];
 
-    this.add.text(cardX + 30, cardY + 110, statLabels.join('\n'), {
+    this.add.text(cardX + 30, cardY + 105, statLabels.join('\n'), {
       fontFamily: 'Outfit, sans-serif',
       fontSize: '13px',
-      lineSpacing: 6,
+      lineSpacing: 5,
       color: '#ecf0f1',
     });
+
+    // Satirical Hindi Newspaper Headline
+    const newsBanner = this.add.container(GAME_WIDTH / 2, cardY + cardH + 24);
+    const newsBg = this.add.graphics();
+    newsBg.fillStyle(0xf1c40f, 0.95);
+    newsBg.fillRoundedRect(-240, -14, 480, 28, 4);
+    const newsText = this.add.text(0, 0, '📰 दैनिक जंतर मंतर: "संसद में गूंजी आवाज़! सभी माँगें मंजूर!"', {
+      fontFamily: 'Outfit, sans-serif',
+      fontSize: '12px',
+      fontStyle: 'bold',
+      color: '#111111',
+    }).setOrigin(0.5);
+    newsBanner.add([newsBg, newsText]);
 
     // Action Buttons
     const btnY = 560;
