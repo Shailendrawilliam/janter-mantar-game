@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants';
 import { LEVELS } from '../config/levelData';
 import { SoundSystem } from '../core/SoundSystem';
+import { SaveManager } from '../core/SaveManager';
 
 export class VictoryScene extends Phaser.Scene {
   constructor() {
@@ -10,49 +11,65 @@ export class VictoryScene extends Phaser.Scene {
 
   create(data: { levelIndex: number; finalCrowd: number; barricadesBroken: number }): void {
     const sound = SoundSystem.getInstance();
+    const saveManager = SaveManager.getInstance();
     sound.playVictory();
     sound.playCrowdRoar();
 
     const currentLevel = LEVELS[data.levelIndex] || LEVELS[0];
     const hasNextLevel = data.levelIndex + 1 < LEVELS.length;
 
-    // Dark tactical background
-    const bg = this.add.graphics();
-    bg.fillGradientStyle(0x0a1018, 0x0a1018, 0x05080c, 0x05080c, 1);
-    bg.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    // Calculate score and update save data
+    const marchDist = currentLevel.roadLength || 3200;
+    const score = Math.round(data.finalCrowd * 250 + (data.barricadesBroken || 0) * 150 + 1500);
+    const isNewHigh = saveManager.updateEndlessScore(marchDist, data.finalCrowd, score);
+
+    // 1. Background (Rich Victory AI Art if available, or dark tactical gradient)
+    if (this.textures.exists('victory_bg')) {
+      const bgImg = this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'victory_bg');
+      bgImg.setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
+
+      const overlay = this.add.graphics();
+      overlay.fillGradientStyle(0x060c14, 0x060c14, 0x091422, 0x091422, 0.65, 0.65, 0.88, 0.88);
+      overlay.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    } else {
+      const bg = this.add.graphics();
+      bg.fillGradientStyle(0x0a1018, 0x0a1018, 0x05080c, 0x05080c, 1);
+      bg.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    }
 
     // Confetti
     this.createConfetti();
 
     // Central Monument Graphic
-    const monument = this.add.image(GAME_WIDTH / 2, 210, 'jantar_mantar_monument');
-    monument.setScale(1.15);
+    const monument = this.add.image(GAME_WIDTH / 2, 205, 'jantar_mantar_monument');
+    monument.setScale(1.1);
 
     // PUBG Style Golden Laurel Banner
-    const bannerW = 600;
+    const bannerW = 620;
     const bannerH = 75;
     const banner = this.add.graphics();
-    banner.fillStyle(0x0a1018, 0.9);
-    banner.fillRoundedRect(GAME_WIDTH / 2 - bannerW / 2, 45, bannerW, bannerH, 8);
+    banner.fillStyle(0x0a1018, 0.92);
+    banner.fillRoundedRect(GAME_WIDTH / 2 - bannerW / 2, 40, bannerW, bannerH, 8);
     banner.lineStyle(2, 0xf2a900, 1);
-    banner.strokeRoundedRect(GAME_WIDTH / 2 - bannerW / 2, 45, bannerW, bannerH, 8);
+    banner.strokeRoundedRect(GAME_WIDTH / 2 - bannerW / 2, 40, bannerW, bannerH, 8);
 
     // Golden Wings / Accents
     banner.fillStyle(0xf2a900, 1);
-    banner.fillRect(GAME_WIDTH / 2 - bannerW / 2 + 10, 48, 12, bannerH - 6);
-    banner.fillRect(GAME_WIDTH / 2 + bannerW / 2 - 22, 48, 12, bannerH - 6);
+    banner.fillRect(GAME_WIDTH / 2 - bannerW / 2 + 10, 43, 12, bannerH - 6);
+    banner.fillRect(GAME_WIDTH / 2 + bannerW / 2 - 22, 43, 12, bannerH - 6);
 
     // PUBG Victory Title
-    this.add.text(GAME_WIDTH / 2, 70, 'WINNER WINNER JANTAR MANTAR DHARNA!', {
+    this.add.text(GAME_WIDTH / 2, 65, 'WINNER WINNER JANTAR MANTAR DHARNA!', {
       fontFamily: 'Outfit, Impact, sans-serif',
       fontSize: '28px',
       fontStyle: 'bold',
       color: '#f2a900',
       stroke: '#000000',
-      strokeThickness: 4,
+      strokeThickness: 5,
     }).setOrigin(0.5);
 
-    this.add.text(GAME_WIDTH / 2, 102, '#1 / 100 • PROTEST MARCH DOMINATED', {
+    const leaderName = saveManager.getPlayerName();
+    this.add.text(GAME_WIDTH / 2, 97, `#1 / 100 • LEADER: ${leaderName.toUpperCase()}`, {
       fontFamily: 'Outfit, sans-serif',
       fontSize: '13px',
       fontStyle: 'bold',
@@ -61,13 +78,13 @@ export class VictoryScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // PUBG Match Stats Card
-    const cardW = 460;
-    const cardH = 200;
+    const cardW = 500;
+    const cardH = 210;
     const cardX = GAME_WIDTH / 2 - cardW / 2;
-    const cardY = 320;
+    const cardY = 300;
 
     const statsCard = this.add.graphics();
-    statsCard.fillStyle(0x0f1722, 0.92);
+    statsCard.fillStyle(0x0d1520, 0.94);
     statsCard.fillRoundedRect(cardX, cardY, cardW, cardH, 8);
     statsCard.lineStyle(1.5, 0x2e3d4f, 1);
     statsCard.strokeRoundedRect(cardX, cardY, cardW, cardH, 8);
@@ -83,30 +100,39 @@ export class VictoryScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Level & Match Info
-    this.add.text(cardX + 110, cardY + 25, currentLevel.name.toUpperCase(), {
+    this.add.text(cardX + 110, cardY + 24, currentLevel.name.toUpperCase(), {
       fontFamily: 'Outfit, sans-serif',
       fontSize: '16px',
       fontStyle: 'bold',
       color: '#ffffff',
     });
 
-    this.add.text(cardX + 110, cardY + 48, `DIFFICULTY: ${currentLevel.difficultyLabel}`, {
+    this.add.text(cardX + 110, cardY + 46, `DIFFICULTY: ${currentLevel.difficultyLabel}  •  SCORE: ${score.toLocaleString('en-IN')} PTS`, {
       fontFamily: 'Outfit, sans-serif',
       fontSize: '12px',
       color: '#f2a900',
     });
 
+    if (isNewHigh) {
+      this.add.text(cardX + 110, cardY + 66, '⭐ NEW HIGH SCORE RECORD!', {
+        fontFamily: 'Outfit, sans-serif',
+        fontSize: '12px',
+        fontStyle: 'bold',
+        color: '#2ecc71',
+      });
+    }
+
     // Detailed Stats Grid
     const statLabels = [
-      `KAFILA STRENGTH: ${data.finalCrowd} CITIZENS`,
-      `BARRICADES BREACHED: ${data.barricadesBroken}`,
-      `SECTION 144 EVADED: 100%`,
-      `STAGE AT JANTAR MANTAR: ESTABLISHED`,
+      `KAFILA CITIZENS GATHERED: ${data.finalCrowd} PROTESTERS`,
+      `POLICE BARRICADES SMASHED: ${data.barricadesBroken}`,
+      `SECTION 144 CRACKDOWN: EVADED 100%`,
+      `PARLIAMENT DHARNA STAGE: SUCCESSFULLY PITCHED`,
     ];
 
-    this.add.text(cardX + 30, cardY + 105, statLabels.join('\n'), {
+    this.add.text(cardX + 25, cardY + 105, statLabels.join('\n'), {
       fontFamily: 'Outfit, sans-serif',
-      fontSize: '13px',
+      fontSize: '12px',
       lineSpacing: 5,
       color: '#ecf0f1',
     });
@@ -115,7 +141,7 @@ export class VictoryScene extends Phaser.Scene {
     const newsBanner = this.add.container(GAME_WIDTH / 2, cardY + cardH + 24);
     const newsBg = this.add.graphics();
     newsBg.fillStyle(0xf1c40f, 0.95);
-    newsBg.fillRoundedRect(-240, -14, 480, 28, 4);
+    newsBg.fillRoundedRect(-250, -14, 500, 28, 4);
     const newsText = this.add.text(0, 0, '📰 दैनिक जंतर मंतर: "संसद में गूंजी आवाज़! सभी माँगें मंजूर!"', {
       fontFamily: 'Outfit, sans-serif',
       fontSize: '12px',

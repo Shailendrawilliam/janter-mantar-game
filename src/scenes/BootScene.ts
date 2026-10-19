@@ -5,6 +5,11 @@ export class BootScene extends Phaser.Scene {
     super({ key: 'BootScene' });
   }
 
+  preload(): void {
+    this.load.image('menu_bg', 'assets/menu_bg.jpg');
+    this.load.image('victory_bg', 'assets/victory_bg.jpg');
+  }
+
   create(): void {
     this.createRoadAndEnvironment();
     this.createCharacters();

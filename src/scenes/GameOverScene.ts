@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config/constants';
 import { SoundSystem } from '../core/SoundSystem';
+import { SaveManager } from '../core/SaveManager';
 
 export class GameOverScene extends Phaser.Scene {
   constructor() {
@@ -60,7 +61,8 @@ export class GameOverScene extends Phaser.Scene {
     elimBanner.lineStyle(1, 0xff3b30, 0.6);
     elimBanner.strokeRoundedRect(cardX + 20, cardY + 20, cardW - 40, 48, 6);
 
-    this.add.text(cardX + 35, cardY + 28, 'DETAINED BY:', {
+    const leaderName = SaveManager.getInstance().getPlayerName();
+    this.add.text(cardX + 35, cardY + 26, `DETAINED: ${leaderName.toUpperCase()} BY:`, {
       fontFamily: 'Outfit, sans-serif',
       fontSize: '11px',
       color: '#bdc3c7',
