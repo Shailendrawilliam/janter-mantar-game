@@ -48,11 +48,32 @@ Thank you for your interest in contributing to **Chalo Jantar Mantar**! We welco
 
 ---
 
-## 💡 Ideas for Future Contributions
+## 🗺️ Priority Roadmap & Help Wanted (To-Do List)
 
-- 🚊 **Delhi Metro Overpass**: Trains running on overhead tracks creating periodic shadows.
-- 🪧 **Customizable Placards**: Allow players to type custom protest slogans on banners.
-- 🌧️ **Delhi Smog & Weather Mode**: Dynamic AQI smog haze effects with mask loot power-ups.
-- 🏆 **Online Global Leaderboard**: Connect high scores to a Supabase or Firebase backend.
+We are actively welcoming Pull Requests for these major feature additions:
+
+1. **🌐 Real-Time Multiplayer Mode (Co-Op & PvP)**
+   - **Co-op Kafila March**: Allow multiple protest leaders online (WebSockets / Socket.io / Colyseus) merging their crowds together to storm Delhi Police riot barricades.
+   - **Cops vs Protesters Mode**: 1 player acts as Delhi Police Commissioner deploying water cannons & barricades while other players navigate the march.
+
+2. **🎭 Role Selection & Character Customization (Characterization)**
+   - Add a character selection screen with distinct archetypes and stats:
+     - 🎓 **Student Leader**: +25% sprint speed, fast slogans.
+     - 🌾 **Kisan Union Chief**: High crowd stability, Swaraj tractor bonus.
+     - ⚖️ **Legal Aid Advocate**: Half-price Anticipatory Bail, quick immunity against detention.
+     - 🥁 **Cultural Dholak Artist**: High rally aura radius, crowd recovery speed.
+
+3. **📸 Custom Face Photo Upload (Avatar Creator)**
+   - HTML5 file input / selfie upload in the main menu or character creator.
+   - Dynamic canvas texture generation mapping the player's face onto:
+     - The 2.5D Protest Leader in-game sprite.
+     - Rally placards carried by the Kafila crowd.
+     - The Victory & Detained newspaper headline photo frames!
+
+4. **🏆 Online Global Leaderboard**
+   - Connect high scores, distance marched, and crowd sizes to an online leaderboard (e.g. Supabase / Firebase).
+
+5. **🚊 Overhead Delhi Metro Train Hazard**
+   - Metro trains passing overhead across the elevated viaduct with dynamic shadows and procedural rumble audio.
 
 Thank you for supporting Indian Indie Game Development! ⭐

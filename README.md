@@ -221,16 +221,37 @@ npx cap open ios
 - ✅ **Zero Asset Bloat**: Procedural generation in `BootScene` ensures instantaneous load times and zero network overhead on mobile connections.
 - ✅ **Cross-Browser & Multi-Touch Compliant**: Fully responsive on Chrome, Safari, Firefox, Edge, and iOS WebViews with gesture locking (`touch-action: none`).
 
+## 🗺️ Roadmap & Priority To-Do List (Contributions Wanted! 🚀)
+
+Looking for exciting open-source challenges? Here are the top community features currently prioritized:
+
+- [ ] **🌐 Real-Time Multiplayer Mode (Co-Op & PvP)**:
+  - **Co-op Kafila March**: Team up with friends online via WebSockets / WebRTC / Colyseus. Merge crowds into a mega-rally to overwhelm heavy multi-tier riot cordons.
+  - **Asymmetric PvP Mode (Protesters vs Delhi Police)**: One player directs police squad placements, water cannon deployments, and Section 144 blockades while other players navigate the march.
+- [ ] **🎭 Role Selection & Character Archetypes (Characterization)**:
+  - Add character selection with unique passive perks and abilities:
+    - 🎓 *Student Union Leader*: High sprint speed, quick megaphone cooldown.
+    - 🌾 *Kisan Union Chief*: Enhanced crowd inertia, tractor durability buff.
+    - ⚖️ *Legal Aid Advocate*: 50% cheaper anticipatory bail, faster detention meter recovery.
+    - 🥁 *Dholak & Cultural Artist*: Massive morale aura expansion and crowd stun radius.
+- [ ] **📸 Custom Face Photo Upload (Avatar & Placard Integration)**:
+  - In-game photo upload tool: Upload your face selfie directly from mobile/web.
+  - Automatically cropped and rendered onto the in-game 2.5D leader sprite, march placards, and newspaper victory/detained headlines!
+- [ ] **🏆 Online Global Leaderboard**:
+  - Connect endless march high scores and Kafila sizes to a Supabase / Firebase backend.
+- [ ] **🚊 Overhead Delhi Metro Hazard**:
+  - Blue Line / Yellow Line trains passing overhead periodically with dynamic shadows and rumbling audio.
+
 ---
 
 ## 🤝 Contributing & Open Source
 
-Contributions, issue reports, and feature suggestions are warmly welcomed!
+Contributions, issue reports, and feature suggestions are warmly welcomed! If you'd like to work on any of the roadmap items above:
 
 1. **Fork** the project on GitHub.
-2. Create your feature branch (`git checkout -b feature/NewDelhiHazard`).
-3. Commit your changes (`git commit -m 'feat: Add Metro train overhead passing hazard'`).
-4. Push to your branch (`git push origin feature/NewDelhiHazard`).
+2. Create your feature branch (`git checkout -b feature/MultiplayerOrRoleSelection`).
+3. Commit your changes (`git commit -m 'feat: Add leader role selection screen'`).
+4. Push to your branch (`git push origin feature/MultiplayerOrRoleSelection`).
 5. Open a **Pull Request**.
 
 If you enjoy the game or found the code helpful, please **give it a ⭐ Star**! It helps the project reach more contributors!
