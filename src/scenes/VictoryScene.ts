@@ -124,16 +124,17 @@ export class VictoryScene extends Phaser.Scene {
 
     // Detailed Stats Grid
     const statLabels = [
+      `RALLY COMMANDER: ${leaderName}`,
       `KAFILA CITIZENS GATHERED: ${data.finalCrowd} PROTESTERS`,
       `POLICE BARRICADES SMASHED: ${data.barricadesBroken}`,
       `SECTION 144 CRACKDOWN: EVADED 100%`,
       `PARLIAMENT DHARNA STAGE: SUCCESSFULLY PITCHED`,
     ];
 
-    this.add.text(cardX + 25, cardY + 105, statLabels.join('\n'), {
+    this.add.text(cardX + 25, cardY + 95, statLabels.join('\n'), {
       fontFamily: 'Outfit, sans-serif',
       fontSize: '12px',
-      lineSpacing: 5,
+      lineSpacing: 4,
       color: '#ecf0f1',
     });
 
@@ -141,8 +142,8 @@ export class VictoryScene extends Phaser.Scene {
     const newsBanner = this.add.container(GAME_WIDTH / 2, cardY + cardH + 24);
     const newsBg = this.add.graphics();
     newsBg.fillStyle(0xf1c40f, 0.95);
-    newsBg.fillRoundedRect(-250, -14, 500, 28, 4);
-    const newsText = this.add.text(0, 0, '📰 दैनिक जंतर मंतर: "संसद में गूंजी आवाज़! सभी माँगें मंजूर!"', {
+    newsBg.fillRoundedRect(-290, -14, 580, 28, 4);
+    const newsText = this.add.text(0, 0, `📰 दैनिक जंतर मंतर: "${leaderName} के नेतृत्व में संसद तक पहुंचा काफिला! माँगें मंजूर!"`, {
       fontFamily: 'Outfit, sans-serif',
       fontSize: '12px',
       fontStyle: 'bold',
