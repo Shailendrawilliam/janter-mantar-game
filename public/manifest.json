@@ -1,0 +1,18 @@
+{
+  "name": "Chalo Jantar Mantar - The Delhi Protest Simulator",
+  "short_name": "JantarMantar",
+  "description": "Satirical 2.5D Delhi rally march game. Gather your Kafila, breach barricades, and reach Jantar Mantar!",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0e141a",
+  "theme_color": "#f1c40f",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
