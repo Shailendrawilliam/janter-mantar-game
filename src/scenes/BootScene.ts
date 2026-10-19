@@ -209,6 +209,33 @@ export class BootScene extends Phaser.Scene {
     }
     sb.generateTexture('speed_breaker', sbW, sbH);
     sb.destroy();
+
+    // 13. Police Steel Spike Strip / Nail Barricading (कीलों वाले बैरिकेड)
+    const spW = 130;
+    const spH = 26;
+    const sp = this.make.graphics({ x: 0, y: 0 });
+    sp.fillStyle(0x111111, 0.95);
+    sp.fillRect(0, 10, spW, 12);
+    // Sharp metal spikes
+    for (let i = 0; i < 9; i++) {
+      sp.fillStyle(0xdfe6e9, 1);
+      sp.fillTriangle(i * 14 + 4, 10, i * 14 + 10, 0, i * 14 + 16, 10);
+      sp.fillStyle(0xb2bec3, 1);
+      sp.fillTriangle(i * 14 + 6, 22, i * 14 + 12, 12, i * 14 + 18, 22);
+    }
+    sp.generateTexture('spike_strip', spW, spH);
+    sp.destroy();
+
+    // 14. Drone Spotlight Beam Cone
+    const spotW = 140;
+    const spotH = 140;
+    const spot = this.make.graphics({ x: 0, y: 0 });
+    spot.fillStyle(0x00d2ff, 0.15);
+    spot.fillCircle(spotW / 2, spotH / 2, spotW / 2 - 4);
+    spot.lineStyle(2, 0x00d2ff, 0.5);
+    spot.strokeCircle(spotW / 2, spotH / 2, spotW / 2 - 4);
+    spot.generateTexture('spotlight_cone', spotW, spotH);
+    spot.destroy();
   }
 
   private createCharacters(): void {
@@ -319,6 +346,112 @@ export class BootScene extends Phaser.Scene {
     riot.fillRect(8, 28, 10, 3);
     riot.generateTexture('police_riot', 50, 60);
     riot.destroy();
+
+    // 5. Delhi Lathi Charge Constable ("लट्ठमार")
+    const lathi = this.make.graphics({ x: 0, y: 0 });
+    lathi.fillStyle(0x000000, 0.4);
+    lathi.fillEllipse(24, 52, 22, 10);
+    lathi.fillStyle(0xc4a36e, 1);
+    lathi.fillRoundedRect(15, 20, 18, 22, 4);
+    lathi.fillStyle(0xd91e18, 1);
+    lathi.fillRect(14, 22, 3, 4);
+    lathi.fillStyle(0xa88750, 1);
+    lathi.fillRect(17, 40, 6, 12);
+    lathi.fillRect(25, 40, 6, 12);
+    lathi.fillStyle(0xedbb99, 1);
+    lathi.fillCircle(24, 14, 8);
+    lathi.fillStyle(0x1b2838, 1);
+    lathi.fillRoundedRect(17, 6, 15, 6, 2);
+    // Heavy Bamboo Lathi raised diagonally
+    lathi.lineStyle(4, 0x8d6e63, 1);
+    lathi.lineBetween(30, 36, 44, 8);
+    lathi.fillStyle(0x5d4037, 1);
+    lathi.fillCircle(44, 8, 3);
+    lathi.generateTexture('police_lathi', 50, 60);
+    lathi.destroy();
+
+    // 6. Court Advocate / Legal Bail Lawyer ("वकील साहब")
+    const lawyer = this.make.graphics({ x: 0, y: 0 });
+    lawyer.fillStyle(0x000000, 0.4);
+    lawyer.fillEllipse(22, 50, 22, 10);
+    // Black Advocate Robe / Coat
+    lawyer.fillStyle(0x111111, 1);
+    lawyer.fillRoundedRect(13, 18, 18, 24, 4);
+    // White lawyer neckband
+    lawyer.fillStyle(0xffffff, 1);
+    lawyer.fillRect(19, 18, 6, 6);
+    lawyer.fillRect(18, 24, 3, 7);
+    lawyer.fillRect(23, 24, 3, 7);
+    lawyer.fillStyle(0xf5cba7, 1);
+    lawyer.fillCircle(22, 12, 7);
+    lawyer.fillStyle(0x2c3e50, 1);
+    lawyer.fillRect(15, 40, 6, 11);
+    lawyer.fillRect(23, 40, 6, 11);
+    // Red Legal Bail Case File Folder
+    lawyer.fillStyle(0xc0392b, 1);
+    lawyer.fillRoundedRect(28, 24, 14, 16, 2);
+    lawyer.fillStyle(0xffffff, 1);
+    lawyer.fillRect(30, 27, 10, 2);
+    lawyer.fillRect(30, 31, 8, 2);
+    lawyer.generateTexture('bail_lawyer', 48, 56);
+    lawyer.destroy();
+
+    // 7. Hot Food Delivery Scooter (Zomato/Swiggy satire Langar Delivery)
+    const delW = 58;
+    const delH = 52;
+    const del = this.make.graphics({ x: 0, y: 0 });
+    del.fillStyle(0x000000, 0.38);
+    del.fillEllipse(delW / 2, delH - 4, delW - 6, 12);
+    // Red Scooter Body
+    del.fillStyle(0xe74c3c, 1);
+    del.fillRoundedRect(10, 22, 34, 18, 4);
+    del.fillStyle(0x111111, 1);
+    del.fillCircle(14, delH - 6, 6);
+    del.fillCircle(delW - 16, delH - 6, 6);
+    // Delivery Box (Orange/Yellow hot container)
+    del.fillStyle(0xff793f, 1);
+    del.fillRoundedRect(6, 10, 18, 18, 3);
+    del.fillStyle(0xffffff, 1);
+    del.fillRect(9, 14, 12, 3);
+    del.fillRect(9, 19, 8, 3);
+    // Rider with helmet
+    del.fillStyle(0x2c3e50, 1);
+    del.fillRect(28, 14, 10, 14);
+    del.fillStyle(0xf1c40f, 1); // Yellow helmet
+    del.fillCircle(33, 10, 7);
+    del.generateTexture('delivery_scooter', delW, delH);
+    del.destroy();
+
+    // 8. Delhi Police Surveillance Drone (कैमरा ड्रोन)
+    const drW = 54;
+    const drH = 50;
+    const dr = this.make.graphics({ x: 0, y: 0 });
+    dr.fillStyle(0x000000, 0.25);
+    dr.fillEllipse(drW / 2, drH - 2, 28, 8);
+    // Quadcopter arms
+    dr.lineStyle(3, 0x2d3436, 1);
+    dr.lineBetween(8, 12, 46, 38);
+    dr.lineBetween(8, 38, 46, 12);
+    // 4 Rotors
+    const rotorPos = [[8, 12], [46, 12], [8, 38], [46, 38]];
+    rotorPos.forEach(([rx, ry]) => {
+      dr.fillStyle(0x636e72, 0.85);
+      dr.fillCircle(rx, ry, 6);
+      dr.lineStyle(1.5, 0x00d2d3, 0.8);
+      dr.strokeCircle(rx, ry, 7);
+    });
+    // Center Drone Pod
+    dr.fillStyle(0x1e272e, 1);
+    dr.fillRoundedRect(drW / 2 - 10, drH / 2 - 10, 20, 20, 4);
+    // Glowing Camera Lens & Red-Blue Beacon
+    dr.fillStyle(0x00d2ff, 1);
+    dr.fillCircle(drW / 2, drH / 2, 4);
+    dr.fillStyle(0xff3838, 1);
+    dr.fillCircle(drW / 2 - 6, drH / 2 - 6, 2);
+    dr.fillStyle(0x18dcff, 1);
+    dr.fillCircle(drW / 2 + 6, drH / 2 - 6, 2);
+    dr.generateTexture('police_drone', drW, drH);
+    dr.destroy();
   }
 
   private createBarricades(): void {

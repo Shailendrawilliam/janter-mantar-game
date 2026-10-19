@@ -6,6 +6,8 @@ export interface MovementInput {
   sprint: boolean;
   chant: boolean;
   massRush: boolean;
+  bail: boolean;
+  foodOrder: boolean;
 }
 
 export class InputHandler {
@@ -21,6 +23,8 @@ export class InputHandler {
     C: Phaser.Input.Keyboard.Key;
     E: Phaser.Input.Keyboard.Key;
     Q: Phaser.Input.Keyboard.Key;
+    B: Phaser.Input.Keyboard.Key;
+    F: Phaser.Input.Keyboard.Key;
   };
 
   // Virtual touch controls state
@@ -29,6 +33,8 @@ export class InputHandler {
   public touchSprint = false;
   public touchChant = false;
   public touchMassRush = false;
+  public touchBail = false;
+  public touchFoodOrder = false;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -44,6 +50,8 @@ export class InputHandler {
         C: this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C),
         E: this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
         Q: this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
+        B: this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.B),
+        F: this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F),
       };
     }
   }
@@ -54,6 +62,8 @@ export class InputHandler {
     let sprint = false;
     let chant = false;
     let massRush = false;
+    let bail = false;
+    let foodOrder = false;
 
     // Keyboard controls
     if (this.wasd && this.cursors) {
@@ -75,6 +85,12 @@ export class InputHandler {
       if (Phaser.Input.Keyboard.JustDown(this.wasd.Q)) {
         massRush = true;
       }
+      if (Phaser.Input.Keyboard.JustDown(this.wasd.B)) {
+        bail = true;
+      }
+      if (Phaser.Input.Keyboard.JustDown(this.wasd.F)) {
+        foodOrder = true;
+      }
     }
 
     // Touch controls merge
@@ -93,7 +109,15 @@ export class InputHandler {
       massRush = true;
       this.touchMassRush = false;
     }
+    if (this.touchBail) {
+      bail = true;
+      this.touchBail = false;
+    }
+    if (this.touchFoodOrder) {
+      foodOrder = true;
+      this.touchFoodOrder = false;
+    }
 
-    return { vx, vy, sprint, chant, massRush };
+    return { vx, vy, sprint, chant, massRush, bail, foodOrder };
   }
 }

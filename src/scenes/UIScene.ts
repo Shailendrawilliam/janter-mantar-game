@@ -39,6 +39,7 @@ export class UIScene extends Phaser.Scene {
   private squadCrowdText!: Phaser.GameObjects.Text;
   private squadStatusBadge!: Phaser.GameObjects.Text;
   private activeBuffText!: Phaser.GameObjects.Text;
+  private fundsText!: Phaser.GameObjects.Text;
 
   // PUBG Health & Boost Bar (Center Bottom)
   private hpContainer!: Phaser.GameObjects.Container;
@@ -245,9 +246,9 @@ export class UIScene extends Phaser.Scene {
 
     const bg = this.add.graphics();
     bg.fillStyle(0x0a1018, 0.88);
-    bg.fillRoundedRect(0, 0, 220, 88, 6);
+    bg.fillRoundedRect(0, 0, 220, 106, 6);
     bg.lineStyle(1.5, 0x2e3d4f, 1);
-    bg.strokeRoundedRect(0, 0, 220, 88, 6);
+    bg.strokeRoundedRect(0, 0, 220, 106, 6);
 
     const playerLabel = this.add.text(12, 8, '1 👑 LEADER (YOU)', {
       fontFamily: 'Outfit, sans-serif',
@@ -276,7 +277,14 @@ export class UIScene extends Phaser.Scene {
       color: '#95a5a6',
     });
 
-    this.squadContainer.add([bg, playerLabel, this.squadCrowdText, this.squadStatusBadge, this.activeBuffText]);
+    this.fundsText = this.add.text(12, 84, '💰 CHANDA: ₹120', {
+      fontFamily: 'Outfit, sans-serif',
+      fontSize: '11px',
+      fontStyle: 'bold',
+      color: '#f1c40f',
+    });
+
+    this.squadContainer.add([bg, playerLabel, this.squadCrowdText, this.squadStatusBadge, this.activeBuffText, this.fundsText]);
   }
 
   private buildPubgHealthBar(): void {
@@ -397,6 +405,34 @@ export class UIScene extends Phaser.Scene {
       0xe74c3c,
       () => {
         this.inputHandler.touchMassRush = true;
+      }
+    );
+
+    // Anticipatory Bail (Lawyer)
+    this.createTacticalButton(
+      rightMargin - 115,
+      bottomMargin - 120,
+      54,
+      '⚖️',
+      'BAIL',
+      '[B] ₹50',
+      0x3498db,
+      () => {
+        this.inputHandler.touchBail = true;
+      }
+    );
+
+    // Langar Food Order Delivery
+    this.createTacticalButton(
+      rightMargin - 155,
+      bottomMargin - 50,
+      54,
+      '🛵',
+      'FOOD',
+      '[F] ₹40',
+      0xf39c12,
+      () => {
+        this.inputHandler.touchFoodOrder = true;
       }
     );
   }
@@ -520,8 +556,13 @@ export class UIScene extends Phaser.Scene {
     activeBuff: string,
     isJammed: boolean,
     headingDeg: number,
+    funds: number,
     minimapEntities: MinimapEntity[]
   ): void {
+    if (this.fundsText) {
+      this.fundsText.setText(`💰 CHANDA: ₹${funds}`);
+    }
+
     let cardinal = 'NORTH';
     if (headingDeg >= 338 || headingDeg < 23) cardinal = 'NORTH';
     else if (headingDeg >= 23 && headingDeg < 68) cardinal = 'NE';

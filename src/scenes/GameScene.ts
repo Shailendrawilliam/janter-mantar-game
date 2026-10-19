@@ -39,8 +39,12 @@ export class GameScene extends Phaser.Scene {
   private langarStalls: Array<{ sprite: Phaser.GameObjects.Sprite; used: boolean }> = [];
   private busStops: Array<{ sprite: Phaser.GameObjects.Sprite; recruited: boolean }> = [];
   private potholes: Array<Phaser.GameObjects.Sprite> = [];
+  private drones: Array<{ sprite: Phaser.GameObjects.Sprite; cone: Phaser.GameObjects.Sprite; dir: number; minX: number; maxX: number }> = [];
+  private spikeStrips: Array<Phaser.GameObjects.Sprite> = [];
+  private lawyers: Array<Phaser.GameObjects.Sprite> = [];
 
   // State & Ultimate
+  private rallyFunds = 120;
   private barricadesBreached = 0;
   private isGameOver = false;
   private isVictory = false;
@@ -72,6 +76,10 @@ export class GameScene extends Phaser.Scene {
     this.langarStalls = [];
     this.busStops = [];
     this.potholes = [];
+    this.drones = [];
+    this.spikeStrips = [];
+    this.lawyers = [];
+    this.rallyFunds = 120;
     this.barricadesBreached = 0;
     this.isGameOver = false;
     this.isVictory = false;
@@ -325,6 +333,35 @@ export class GameScene extends Phaser.Scene {
       const pu = new PowerUp(this, px, py, powerTypes[i % powerTypes.length]);
       this.powerUps.push(pu);
     }
+
+    // Police Surveillance Drones overhead
+    const droneYPositions = [startY - marchSpan * 0.35, startY - marchSpan * 0.7];
+    droneYPositions.forEach((dy) => {
+      const drone = this.add.sprite(ROAD_BOUNDS.CENTER_X, dy, 'police_drone');
+      drone.setOrigin(0.5, 0.5);
+      drone.setDepth(25000); // Sky flight
+
+      const cone = this.add.sprite(ROAD_BOUNDS.CENTER_X, dy + 45, 'spotlight_cone');
+      cone.setOrigin(0.5, 0.5);
+      cone.setDepth(15);
+
+      this.drones.push({
+        sprite: drone,
+        cone,
+        dir: 1,
+        minX: ROAD_BOUNDS.ROAD_LEFT_X + 60,
+        maxX: ROAD_BOUNDS.ROAD_RIGHT_X - 60,
+      });
+    });
+
+    // Spike Strips across road before major barricades
+    for (let i = 2; i <= this.config.barricadeCount; i += 2) {
+      const sy = startY - i * barricadeInterval + 60;
+      const spike = this.add.sprite(ROAD_BOUNDS.CENTER_X, sy, 'spike_strip');
+      spike.setOrigin(0.5, 0.5);
+      spike.setDepth(-983);
+      this.spikeStrips.push(spike);
+    }
   }
 
   update(_time: number, delta: number): void {
@@ -365,6 +402,12 @@ export class GameScene extends Phaser.Scene {
     if (input.chant && this.player.chantCooldown <= 0) {
       this.triggerChant();
     }
+    if (input.bail) {
+      this.triggerAnticipatoryBail();
+    }
+    if (input.foodOrder) {
+      this.triggerFoodOrder();
+    }
 
     const followingCrowd = this.crowd.filter((c) => c.state === 'FOLLOWING');
     const crowdCount = followingCrowd.length + 1;
@@ -373,6 +416,7 @@ export class GameScene extends Phaser.Scene {
     this.updatePolice(delta, crowdCount);
     this.updateTractors(delta, input.vx);
     this.updateInteractiveStreetFeatures();
+    this.updateDronesAndSpikes(delta);
     this.updateBarricades(crowdCount);
     this.updateVehiclesAndHazards(delta);
     this.updateMediaCrews();
@@ -449,6 +493,7 @@ export class GameScene extends Phaser.Scene {
         this.activeBuff,
         this.jammerActive,
         this.player.headingAngle,
+        this.rallyFunds,
         minimapEntities
       );
     }
@@ -457,6 +502,150 @@ export class GameScene extends Phaser.Scene {
       this.soundSystem.stopDholakBeat();
       this.triggerGameOver('Leader encircled and detained under Section 144.');
     }
+  }
+
+  public triggerAnticipatoryBail(): void {
+    if (this.rallyFunds < 50) {
+      this.showComicSpeechBubble(this.player.x, this.player.y - 45, 'NEED ₹50 CHANDA FOR VAKIL!', '#ff3b30', 13);
+      return;
+    }
+    this.rallyFunds -= 50;
+    this.player.detentionMeter = 0; // Clear detention meter!
+
+    // Spawn Lawyer
+    const lawyer = this.add.sprite(this.player.x + 30, this.player.y - 10, 'bail_lawyer');
+    lawyer.setOrigin(0.5, 0.9);
+    lawyer.setDepth(this.player.depth + 1);
+    this.lawyers.push(lawyer);
+
+    this.soundSystem.playRecruit();
+    this.speechSystem.speakSlogan('वकील साहब आ गए! धारा 144 पर अंतरिम रोक!');
+    this.showComicSpeechBubble(lawyer.x, lawyer.y - 45, '⚖️ VAKIL SAHAB: INTERIM BAIL GRANTED!', '#3498db', 14);
+
+    const uiScene = this.scene.get('UIScene') as UIScene;
+    if (uiScene?.addEventFeedItem) {
+      uiScene.addEventFeedItem('⚖️ Anticipatory Bail Granted! Detention meter fully CLEARED!', '#3498db');
+    }
+
+    // Regroup 4 dispersed citizens
+    let restored = 0;
+    this.crowd.forEach((c) => {
+      if (c.state === 'DISPERSED' || (c.state === 'BYSTANDER' && restored < 4)) {
+        this.recruitBystander(c);
+        restored++;
+      }
+    });
+
+    this.time.delayedCall(7000, () => {
+      this.tweens.add({
+        targets: lawyer,
+        alpha: 0,
+        duration: 400,
+        onComplete: () => lawyer.destroy(),
+      });
+    });
+  }
+
+  public triggerFoodOrder(): void {
+    if (this.rallyFunds < 40) {
+      this.showComicSpeechBubble(this.player.x, this.player.y - 45, 'NEED ₹40 CHANDA FOR FOOD!', '#ff3b30', 13);
+      return;
+    }
+    this.rallyFunds -= 40;
+
+    // Delivery bike speeds down to player
+    const scooter = this.add.sprite(this.player.x - 30, this.player.y + 160, 'delivery_scooter');
+    scooter.setOrigin(0.5, 0.85);
+    scooter.setDepth(this.player.depth + 1);
+
+    this.soundSystem.playDelhiTruckHorn();
+    this.speechSystem.speakSlogan('छोले भटूरे और चाय आ गई! सब लोग लंगर खाओ!');
+
+    this.tweens.add({
+      targets: scooter,
+      y: this.player.y,
+      duration: 450,
+      ease: 'Power2',
+      onComplete: () => {
+        this.soundSystem.playChaiSlurp();
+        this.player.sprintEnergy = 100;
+        this.morale = Math.min(100, this.morale + 25);
+        this.showComicSpeechBubble(this.player.x, this.player.y - 45, '🛵 CHOLE BHATURE & CHAI ARRIVED! (+100% STAMINA)', '#f39c12', 13);
+
+        const uiScene = this.scene.get('UIScene') as UIScene;
+        if (uiScene?.addEventFeedItem) {
+          uiScene.addEventFeedItem('🛵 Food Delivery arrived! 100% Stamina & +25 Josh for Kafila!', '#f39c12');
+        }
+
+        // Recruit all nearby bystanders
+        this.crowd.forEach((c) => {
+          if (c.state === 'BYSTANDER' && Math.hypot(c.x - this.player.x, c.y - this.player.y) < 220) {
+            this.recruitBystander(c);
+          }
+        });
+
+        // Scooter drives off
+        this.tweens.add({
+          targets: scooter,
+          y: scooter.y - 250,
+          alpha: 0,
+          duration: 650,
+          onComplete: () => scooter.destroy(),
+        });
+      },
+    });
+  }
+
+  private updateDronesAndSpikes(delta: number): void {
+    const dt = delta / 1000;
+
+    // 1. Surveillance Drones
+    this.drones.forEach((d) => {
+      d.sprite.x += d.dir * 85 * dt;
+      if (d.sprite.x >= d.maxX) {
+        d.dir = -1;
+      } else if (d.sprite.x <= d.minX) {
+        d.dir = 1;
+      }
+      d.cone.x = d.sprite.x;
+      d.cone.y = d.sprite.y + 45;
+
+      // Check if player is caught in drone spotlight
+      const dist = Math.hypot(this.player.x - d.cone.x, this.player.y - d.cone.y);
+      if (dist < 65) {
+        this.player.adjustDetention(dt * 22);
+        d.cone.setTint(0xff3b30);
+        if (Math.random() < 0.05) {
+          this.soundSystem.playPoliceWhistle();
+          this.showComicSpeechBubble(d.sprite.x, d.sprite.y - 30, '📹 DRONE SPOTTED PROTESTERS!', '#ff3b30', 11);
+        }
+      } else {
+        d.cone.clearTint();
+      }
+    });
+
+    // 2. Spike Strips
+    this.spikeStrips.forEach((spike) => {
+      // Tractor destroys spike strips
+      this.tractors.forEach((tr) => {
+        if (!tr.isFinished && Math.hypot(tr.x - spike.x, tr.y - spike.y) < 55) {
+          spike.destroy();
+          this.soundSystem.playHeavyBarricadeSmash();
+          this.showComicSpeechBubble(spike.x, spike.y - 20, '🚜 SPIKES FLATTENED!', '#27ae60', 11);
+        }
+      });
+
+      // Player stepping on spikes without armor
+      if (spike.active && this.activeBuff !== 'ARMOR') {
+        const dist = Math.hypot(this.player.x - spike.x, this.player.y - spike.y);
+        if (dist < 35) {
+          this.player.y += 18;
+          this.player.sprintEnergy = Math.max(0, this.player.sprintEnergy - 20);
+          this.soundSystem.playHeavyBarricadeSmash();
+          this.showComicSpeechBubble(spike.x, spike.y - 25, '⚠️ POLICE SPIKE STRIP!', '#e74c3c', 11);
+        }
+      }
+    });
   }
 
   public summonRallyTractor(): void {
@@ -663,12 +852,13 @@ export class GameScene extends Phaser.Scene {
     member.recruit(offX, offY);
     this.soundSystem.playRecruit();
     this.morale = Math.min(100, this.morale + 5);
+    this.rallyFunds += 10;
 
-    this.showComicSpeechBubble(member.x, member.y - 40, '+1 CITIZEN', '#2ecc71', 11);
+    this.showComicSpeechBubble(member.x, member.y - 40, '+1 CITIZEN (₹10 CHANDA)', '#2ecc71', 11);
 
     const uiScene = this.scene.get('UIScene') as UIScene;
     if (uiScene?.addEventFeedItem && Math.random() < 0.3) {
-      uiScene.addEventFeedItem('👥 Citizen joined the Kafila!', '#2ecc71');
+      uiScene.addEventFeedItem('👥 Citizen joined the Kafila! (+₹10 Chanda)', '#2ecc71');
     }
   }
 
@@ -841,11 +1031,12 @@ export class GameScene extends Phaser.Scene {
         media.interact();
         this.soundSystem.playRecruit();
         this.morale = Math.min(100, this.morale + 30);
-        this.showComicSpeechBubble(media.x, media.y - 40, 'LIVE NEWS: +3 PROTESTERS!', '#9b59b6', 14);
+        this.rallyFunds += 40;
+        this.showComicSpeechBubble(media.x, media.y - 40, 'LIVE TV: +3 CITIZENS & +₹40 CHANDA!', '#9b59b6', 13);
 
         const uiScene = this.scene.get('UIScene') as UIScene;
         if (uiScene?.addEventFeedItem) {
-          uiScene.addEventFeedItem('📺 National TV News Coverage: +3 Citizens!', '#9b59b6');
+          uiScene.addEventFeedItem('📺 National TV News Coverage: +3 Citizens & +₹40 Chanda!', '#9b59b6');
         }
 
         for (let i = 0; i < 3; i++) {
