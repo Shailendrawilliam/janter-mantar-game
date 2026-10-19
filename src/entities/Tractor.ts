@@ -16,8 +16,8 @@ export class RallyTractor extends Phaser.GameObjects.Sprite {
     // Tractor rumble bounce
     this.scene.tweens.add({
       targets: this,
-      y: startY - 2,
-      duration: 120,
+      x: startX - 1.5,
+      duration: 100,
       yoyo: true,
       repeat: -1,
     });
@@ -26,18 +26,18 @@ export class RallyTractor extends Phaser.GameObjects.Sprite {
   public updateTractor(delta: number): boolean {
     const dt = delta / 1000;
     this.life -= dt;
-    this.x += this.speed * dt;
+    this.y -= this.speed * dt; // Drive North towards top of screen!
     this.setDepth(IsometricUtils.getDepth(this.x, this.y, 2));
 
-    // Exhaust smoke puff
+    // Exhaust smoke puff behind tractor
     if (Math.random() < 0.25) {
-      const smoke = this.scene.add.image(this.x - 25, this.y - 32, 'fx_dust');
+      const smoke = this.scene.add.image(this.x - 18, this.y + 25, 'fx_dust');
       smoke.setScale(0.8);
       smoke.setAlpha(0.6);
       this.scene.tweens.add({
         targets: smoke,
-        y: smoke.y - 20,
-        x: smoke.x - 10,
+        y: smoke.y + 20,
+        x: smoke.x - 5,
         alpha: 0,
         scale: 1.5,
         duration: 350,

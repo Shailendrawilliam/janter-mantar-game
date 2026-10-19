@@ -18,6 +18,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   private createRoadAndEnvironment(): void {
+    // 1. Asphalt Road Texture (128x128 tileable)
     const road = this.make.graphics({ x: 0, y: 0 });
     road.fillStyle(0x22272e, 1);
     road.fillRect(0, 0, 128, 128);
@@ -28,20 +29,23 @@ export class BootScene extends Phaser.Scene {
     road.generateTexture('road_asphalt', 128, 128);
     road.destroy();
 
-    const lane = this.make.graphics({ x: 0, y: 0 });
-    lane.fillStyle(0xf1c40f, 0.95);
-    lane.fillRect(0, 0, 48, 6);
-    lane.generateTexture('road_lane_stripe', 48, 6);
-    lane.destroy();
+    // 2. Vertical Road Lane Divider (Yellow dashed line running North-South)
+    const laneV = this.make.graphics({ x: 0, y: 0 });
+    laneV.fillStyle(0xf1c40f, 0.95);
+    laneV.fillRect(0, 0, 6, 48);
+    laneV.generateTexture('road_lane_stripe_v', 6, 48);
+    laneV.destroy();
 
-    const zebra = this.make.graphics({ x: 0, y: 0 });
-    zebra.fillStyle(0xffffff, 0.9);
-    for (let i = 0; i < 7; i++) {
-      zebra.fillRect(0, i * 40, 70, 22);
+    // 3. Horizontal Zebra Crossing across the vertical road (width 524, height 64)
+    const zebraH = this.make.graphics({ x: 0, y: 0 });
+    zebraH.fillStyle(0xffffff, 0.9);
+    for (let i = 0; i < 11; i++) {
+      zebraH.fillRect(i * 48, 0, 26, 64);
     }
-    zebra.generateTexture('zebra_crossing', 70, 280);
-    zebra.destroy();
+    zebraH.generateTexture('zebra_crossing_h', 524, 64);
+    zebraH.destroy();
 
+    // 4. Sidewalk Pavement (Red Sandstone / Gray Delhi Pavement)
     const pave = this.make.graphics({ x: 0, y: 0 });
     pave.fillStyle(0x84817a, 1);
     pave.fillRect(0, 0, 64, 64);
@@ -53,14 +57,16 @@ export class BootScene extends Phaser.Scene {
     pave.generateTexture('sidewalk_tile', 64, 64);
     pave.destroy();
 
-    const curb = this.make.graphics({ x: 0, y: 0 });
-    curb.fillStyle(0xf1c40f, 1);
-    curb.fillRect(0, 0, 32, 12);
-    curb.fillStyle(0x111111, 1);
-    curb.fillRect(32, 0, 32, 12);
-    curb.generateTexture('delhi_curb', 64, 12);
-    curb.destroy();
+    // 5. Vertical Delhi Yellow & Black Curb (running along the left and right edges)
+    const curbV = this.make.graphics({ x: 0, y: 0 });
+    curbV.fillStyle(0xf1c40f, 1); // Yellow
+    curbV.fillRect(0, 0, 12, 32);
+    curbV.fillStyle(0x111111, 1); // Black
+    curbV.fillRect(0, 32, 12, 32);
+    curbV.generateTexture('delhi_curb_v', 12, 64);
+    curbV.destroy();
 
+    // 6. Lush Delhi Tree
     const tree = this.make.graphics({ x: 0, y: 0 });
     tree.fillStyle(0x000000, 0.35);
     tree.fillEllipse(36, 80, 50, 20);
@@ -76,6 +82,7 @@ export class BootScene extends Phaser.Scene {
     tree.generateTexture('delhi_tree', 72, 92);
     tree.destroy();
 
+    // 7. Delhi Street Lamp
     const lamp = this.make.graphics({ x: 0, y: 0 });
     lamp.fillStyle(0x000000, 0.3);
     lamp.fillEllipse(15, 78, 18, 8);
@@ -253,6 +260,10 @@ export class BootScene extends Phaser.Scene {
     for (let i = 0; i < 5; i++) bus.fillRoundedRect(16 + i * 18, 16, 14, 16, 3);
     bus.fillStyle(0xdfe6e9, 0.95);
     bus.fillRoundedRect(busW - 18, 16, 10, 26, 3);
+    bus.fillStyle(0x111111, 1);
+    bus.fillRect(busW - 26, 9, 18, 6);
+    bus.fillStyle(0xf39c12, 1);
+    bus.fillRect(busW - 24, 11, 14, 2);
     bus.fillStyle(0x1e272e, 1);
     bus.fillCircle(30, busH - 8, 7);
     bus.fillCircle(busW - 30, busH - 8, 7);
@@ -340,47 +351,55 @@ export class BootScene extends Phaser.Scene {
     jammer.generateTexture('vehicle_jammer', jammerW, jammerH);
     jammer.destroy();
 
-    // 6. Indian Rally Tractor (Heavy Battering Ram!)
-    const trW = 90;
-    const trH = 68;
+    // 6. Indian Rally Tractor (facing upwards towards North)
+    const trW = 76;
+    const trH = 86;
     const tr = this.make.graphics({ x: 0, y: 0 });
     tr.fillStyle(0x000000, 0.45);
-    tr.fillEllipse(trW / 2, trH - 6, trW - 6, 18);
-    // Green Hood (Swaraj style)
+    tr.fillEllipse(trW / 2, trH - 6, trW - 6, 20);
+    // Green Hood (Swaraj style pointing Up)
     tr.fillStyle(0x27ae60, 1);
-    tr.fillRoundedRect(22, 22, 48, 24, 4);
+    tr.fillRoundedRect(18, 16, 40, 50, 6);
+    // Front grill & headlights
+    tr.fillStyle(0x111111, 1);
+    tr.fillRect(22, 16, 32, 8);
+    tr.fillStyle(0xfff59d, 1);
+    tr.fillCircle(24, 20, 3);
+    tr.fillCircle(52, 20, 3);
     // Chrome vertical exhaust pipe
     tr.lineStyle(4, 0xbdc3c7, 1);
-    tr.lineBetween(trW - 28, 22, trW - 28, 6);
+    tr.lineBetween(22, 26, 22, 8);
     tr.fillStyle(0x111111, 1);
-    tr.fillCircle(trW - 28, 6, 3);
-    // Roof Mounted Dual Megaphones
+    tr.fillCircle(22, 8, 3);
+    // Dual Megaphones on hood
     tr.fillStyle(0xf1c40f, 1);
-    tr.fillTriangle(trW - 42, 12, trW - 30, 8, trW - 30, 16);
-    tr.fillTriangle(trW - 42, 16, trW - 30, 20, trW - 30, 12);
-    // Driver Seat & Steering
+    tr.fillTriangle(26, 12, 32, 6, 32, 16);
+    tr.fillTriangle(50, 12, 44, 6, 44, 16);
+    // Driver seat & steering
     tr.fillStyle(0x2c3e50, 1);
-    tr.fillRect(14, 24, 12, 14);
-    // Giant Grooved Rear Wheel
+    tr.fillRect(24, 46, 28, 16);
+    // Left Giant Rear Wheel
     tr.fillStyle(0x111111, 1);
-    tr.fillCircle(18, trH - 16, 16);
-    tr.fillStyle(0xf1c40f, 1);
-    tr.fillCircle(18, trH - 16, 8);
-    // Front Wheel
-    tr.fillStyle(0x111111, 1);
-    tr.fillCircle(trW - 18, trH - 12, 11);
-    tr.fillStyle(0xf1c40f, 1);
-    tr.fillCircle(trW - 18, trH - 12, 5);
+    tr.fillRoundedRect(6, 40, 12, 34, 4);
+    // Right Giant Rear Wheel
+    tr.fillRoundedRect(58, 40, 12, 34, 4);
+    // Front Left Wheel
+    tr.fillRoundedRect(10, 18, 8, 20, 3);
+    // Front Right Wheel
+    tr.fillRoundedRect(58, 18, 8, 20, 3);
     tr.generateTexture('vehicle_tractor', trW, trH);
     tr.destroy();
   }
 
   private createJantarMantarMonument(): void {
-    const W = 200;
-    const H = 150;
+    const W = 240;
+    const H = 160;
     const m = this.make.graphics({ x: 0, y: 0 });
+
     m.fillStyle(0x000000, 0.4);
-    m.fillEllipse(W / 2, H - 12, W - 20, 28);
+    m.fillEllipse(W / 2, H - 12, W - 20, 30);
+
+    // Terracotta-red masonry base
     m.fillStyle(0x922b21, 1);
     m.beginPath();
     m.moveTo(10, H - 24);
@@ -395,30 +414,31 @@ export class BootScene extends Phaser.Scene {
     m.beginPath();
     m.moveTo(20, H - 24);
     m.lineTo(W / 2, 18);
-    m.lineTo(W / 2 + 16, 18);
+    m.lineTo(W / 2 + 18, 18);
     m.lineTo(W - 30, H - 24);
     m.closePath();
     m.fillPath();
 
     m.fillStyle(0x641e16, 1);
-    m.fillRoundedRect(W / 2 - 28, H - 45, 20, 24, 10);
-    m.fillRoundedRect(W / 2 + 8, H - 45, 20, 24, 10);
+    m.fillRoundedRect(W / 2 - 32, H - 46, 22, 26, 11);
+    m.fillRoundedRect(W / 2 + 10, H - 46, 22, 26, 11);
 
     m.lineStyle(2, 0xfadbd8, 0.9);
-    for (let i = 0; i < 8; i++) {
-      const x1 = 36 + i * 15;
+    for (let i = 0; i < 9; i++) {
+      const x1 = 40 + i * 16;
       const y1 = H - 26 - i * 12;
       m.lineBetween(x1, y1, x1 + 10, y1 - 5);
     }
 
     m.lineStyle(2.5, 0xffffff, 1);
-    m.lineBetween(W / 2 + 8, 18, W / 2 + 8, -2);
+    m.lineBetween(W / 2 + 9, 18, W / 2 + 9, -2);
     m.fillStyle(0xff9933, 1);
-    m.fillRect(W / 2 + 8, -2, 18, 5);
+    m.fillRect(W / 2 + 9, -2, 20, 5);
     m.fillStyle(0xffffff, 1);
-    m.fillRect(W / 2 + 8, 3, 18, 5);
+    m.fillRect(W / 2 + 9, 3, 20, 5);
     m.fillStyle(0x138808, 1);
-    m.fillRect(W / 2 + 8, 8, 18, 5);
+    m.fillRect(W / 2 + 9, 8, 20, 5);
+
     m.generateTexture('jantar_mantar_monument', W, H);
     m.destroy();
   }
@@ -492,7 +512,6 @@ export class BootScene extends Phaser.Scene {
     const W = 40;
     const H = 36;
 
-    // 1. Langar (Chai-Samosa) Crate
     const langar = this.make.graphics({ x: 0, y: 0 });
     langar.fillStyle(0x000000, 0.35);
     langar.fillEllipse(W / 2, H - 3, 26, 8);
@@ -505,7 +524,6 @@ export class BootScene extends Phaser.Scene {
     langar.generateTexture('loot_langar', W, H);
     langar.destroy();
 
-    // 2. Megaphone Crate
     const mega = this.make.graphics({ x: 0, y: 0 });
     mega.fillStyle(0x000000, 0.35);
     mega.fillEllipse(W / 2, H - 3, 26, 8);
@@ -518,7 +536,6 @@ export class BootScene extends Phaser.Scene {
     mega.generateTexture('loot_megaphone', W, H);
     mega.destroy();
 
-    // 3. Level 3 Armor Crate
     const armor = this.make.graphics({ x: 0, y: 0 });
     armor.fillStyle(0x000000, 0.35);
     armor.fillEllipse(W / 2, H - 3, 26, 8);
@@ -528,31 +545,5 @@ export class BootScene extends Phaser.Scene {
     armor.fillRect(8, 14, W - 16, 7);
     armor.generateTexture('loot_armor', W, H);
     armor.destroy();
-
-    // 4. Tractor Summon Crate
-    const trCrate = this.make.graphics({ x: 0, y: 0 });
-    trCrate.fillStyle(0x000000, 0.35);
-    trCrate.fillEllipse(W / 2, H - 3, 26, 8);
-    trCrate.fillStyle(0x27ae60, 1);
-    trCrate.fillRoundedRect(4, 10, W - 8, 20, 3);
-    trCrate.fillStyle(0xf1c40f, 1);
-    trCrate.fillRect(4, 10, W - 8, 6);
-    trCrate.fillStyle(0xffffff, 1);
-    trCrate.fillCircle(W / 2, 20, 5);
-    trCrate.generateTexture('loot_tractor', W, H);
-    trCrate.destroy();
-
-    // 5. N95 Pollution Mask Crate
-    const maskCrate = this.make.graphics({ x: 0, y: 0 });
-    maskCrate.fillStyle(0x000000, 0.35);
-    maskCrate.fillEllipse(W / 2, H - 3, 26, 8);
-    maskCrate.fillStyle(0x00a8ff, 1);
-    maskCrate.fillRoundedRect(4, 10, W - 8, 20, 3);
-    maskCrate.fillStyle(0xffffff, 1);
-    maskCrate.fillRect(4, 10, W - 8, 6);
-    maskCrate.fillStyle(0xecf0f1, 1);
-    maskCrate.fillCircle(W / 2, 20, 5);
-    maskCrate.generateTexture('loot_n95', W, H);
-    maskCrate.destroy();
   }
 }

@@ -8,8 +8,9 @@ export class Vehicle extends Phaser.GameObjects.Sprite {
   public vehicleType: VehicleType;
   public speed: number;
   public direction = 1;
-  public minX: number;
-  public maxX: number;
+  public axis: 'X' | 'Y' = 'X';
+  public minCoord: number;
+  public maxCoord: number;
   public waterCannonTimer = 0;
 
   constructor(
@@ -17,8 +18,9 @@ export class Vehicle extends Phaser.GameObjects.Sprite {
     startX: number,
     startY: number,
     type: VehicleType,
-    minX = startX - 160,
-    maxX = startX + 160
+    axis: 'X' | 'Y' = 'X',
+    minCoord?: number,
+    maxCoord?: number
   ) {
     let textureKey = 'vehicle_dtc';
     if (type === 'AUTO') textureKey = 'vehicle_auto';
@@ -29,8 +31,9 @@ export class Vehicle extends Phaser.GameObjects.Sprite {
     super(scene, startX, startY, textureKey);
 
     this.vehicleType = type;
-    this.minX = minX;
-    this.maxX = maxX;
+    this.axis = axis;
+    this.minCoord = minCoord ?? (axis === 'X' ? 240 : startY - 180);
+    this.maxCoord = maxCoord ?? (axis === 'X' ? 784 : startY + 180);
 
     switch (type) {
       case 'DTC':
@@ -59,13 +62,22 @@ export class Vehicle extends Phaser.GameObjects.Sprite {
     const dt = delta / 1000;
     let firesWater = false;
 
-    this.x += this.direction * this.speed * dt;
-    if (this.x >= this.maxX) {
-      this.direction = -1;
-      this.setFlipX(true);
-    } else if (this.x <= this.minX) {
-      this.direction = 1;
-      this.setFlipX(false);
+    if (this.axis === 'X') {
+      this.x += this.direction * this.speed * dt;
+      if (this.x >= this.maxCoord) {
+        this.direction = -1;
+        this.setFlipX(true);
+      } else if (this.x <= this.minCoord) {
+        this.direction = 1;
+        this.setFlipX(false);
+      }
+    } else {
+      this.y += this.direction * this.speed * dt;
+      if (this.y >= this.maxCoord) {
+        this.direction = -1;
+      } else if (this.y <= this.minCoord) {
+        this.direction = 1;
+      }
     }
 
     if (this.vehicleType === 'VAJRA') {

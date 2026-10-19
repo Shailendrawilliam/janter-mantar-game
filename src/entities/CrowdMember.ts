@@ -77,7 +77,8 @@ export class CrowdMember extends Phaser.GameObjects.Sprite {
       }
     }
 
-    this.y = Phaser.Math.Clamp(this.y, ROAD_BOUNDS.TOP_Y, ROAD_BOUNDS.BOTTOM_Y);
+    this.x = Phaser.Math.Clamp(this.x, ROAD_BOUNDS.WALK_MIN_X, ROAD_BOUNDS.WALK_MAX_X);
+    this.y = Math.max(ROAD_BOUNDS.FINISH_Y - 30, this.y);
     this.setDepth(IsometricUtils.getDepth(this.x, this.y, 1));
   }
 }

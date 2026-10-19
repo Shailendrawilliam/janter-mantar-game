@@ -87,79 +87,95 @@ export class GameScene extends Phaser.Scene {
 
     this.buildDelhiBoulevard();
 
-    this.player = new Player(this, 120, 390);
+    const startY = this.config.roadLength - 250;
+    this.player = new Player(this, ROAD_BOUNDS.CENTER_X, startY);
 
     for (let i = 0; i < 2; i++) {
-      const c = new CrowdMember(this, 90 - i * 30, 390 + (i === 0 ? -25 : 25), i);
-      c.recruit(-30 - i * 25, (i === 0 ? -25 : 25));
+      const offsetX = i === 0 ? -40 : 40;
+      const c = new CrowdMember(this, ROAD_BOUNDS.CENTER_X + offsetX, startY + 30, i);
+      c.recruit(offsetX, 30);
       this.crowd.push(c);
     }
 
     this.spawnEntities();
 
-    this.cameras.main.setBounds(0, 0, this.config.roadLength + 600, 768);
+    const totalH = this.config.roadLength + 400;
+    this.cameras.main.setBounds(0, 0, 1024, totalH);
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
 
-    this.showComicSpeechBubble(120, 330, 'चलो जंतर मंतर!', '#f2a900');
+    this.showComicSpeechBubble(ROAD_BOUNDS.CENTER_X, startY - 45, 'चलो जंतर मंतर!', '#f2a900');
   }
 
   private buildDelhiBoulevard(): void {
-    const roadLength = this.config.roadLength;
-    const totalW = roadLength + 600;
+    const totalH = this.config.roadLength + 400;
 
-    const northPave = this.add.tileSprite(totalW / 2, 150, totalW, 90, 'sidewalk_tile');
-    northPave.setDepth(-1000);
+    // 1. West Sidewalk (Left side: 0 to 250)
+    const westSidewalk = this.add.tileSprite(125, totalH / 2, 250, totalH, 'sidewalk_tile');
+    westSidewalk.setDepth(-1000);
 
-    const northCurb = this.add.tileSprite(totalW / 2, 200, totalW, 12, 'delhi_curb');
-    northCurb.setDepth(-995);
+    // 2. East Sidewalk (Right side: 774 to 1024)
+    const eastSidewalk = this.add.tileSprite(899, totalH / 2, 250, totalH, 'sidewalk_tile');
+    eastSidewalk.setDepth(-1000);
 
-    const road = this.add.tileSprite(totalW / 2, 392, totalW, 376, 'road_asphalt');
+    // 3. West Delhi Curb (Yellow & Black stripes along Left edge of road)
+    const westCurb = this.add.tileSprite(ROAD_BOUNDS.ROAD_LEFT_X, totalH / 2, 12, totalH, 'delhi_curb_v');
+    westCurb.setDepth(-995);
+
+    // 4. East Delhi Curb (Yellow & Black stripes along Right edge of road)
+    const eastCurb = this.add.tileSprite(ROAD_BOUNDS.ROAD_RIGHT_X, totalH / 2, 12, totalH, 'delhi_curb_v');
+    eastCurb.setDepth(-995);
+
+    // 5. Asphalt Central Road (4 Lanes: width 524, centered at 512)
+    const road = this.add.tileSprite(ROAD_BOUNDS.CENTER_X, totalH / 2, ROAD_BOUNDS.ROAD_WIDTH, totalH, 'road_asphalt');
     road.setDepth(-990);
 
-    const laneY = [298, 392, 486];
-    laneY.forEach((ly) => {
-      for (let x = 60; x < totalW; x += 96) {
-        const stripe = this.add.image(x, ly, 'road_lane_stripe');
+    // 6. Vertical Lane Dividers (Dashed yellow stripes dividing 4 lanes)
+    const dividersX = [ROAD_BOUNDS.ROAD_LEFT_X + 131, ROAD_BOUNDS.CENTER_X, ROAD_BOUNDS.ROAD_RIGHT_X - 131];
+    dividersX.forEach((dx) => {
+      for (let y = 140; y < totalH; y += 96) {
+        const stripe = this.add.image(dx, y, 'road_lane_stripe_v');
         stripe.setDepth(-985);
       }
     });
 
-    const zebra1 = this.add.image(380, 392, 'zebra_crossing');
+    // 7. Horizontal Zebra Crossings across the road
+    const zebra1 = this.add.image(ROAD_BOUNDS.CENTER_X, this.config.roadLength - 380, 'zebra_crossing_h');
     zebra1.setDepth(-980);
-    const zebra2 = this.add.image(1300, 392, 'zebra_crossing');
+    const zebra2 = this.add.image(ROAD_BOUNDS.CENTER_X, totalH * 0.45, 'zebra_crossing_h');
     zebra2.setDepth(-980);
+    const zebra3 = this.add.image(ROAD_BOUNDS.CENTER_X, ROAD_BOUNDS.FINISH_Y + 160, 'zebra_crossing_h');
+    zebra3.setDepth(-980);
 
-    const southCurb = this.add.tileSprite(totalW / 2, 584, totalW, 12, 'delhi_curb');
-    southCurb.setDepth(-975);
+    // 8. Sidewalk Trees and Delhi Street Lamps
+    for (let y = 100; y < totalH; y += 180) {
+      const treeW = this.add.image(110, y, 'delhi_tree');
+      treeW.setOrigin(0.5, 0.9);
+      treeW.setDepth(y * 10);
 
-    const southPave = this.add.tileSprite(totalW / 2, 635, totalW, 90, 'sidewalk_tile');
-    southPave.setDepth(-970);
+      const treeE = this.add.image(914, y + 90, 'delhi_tree');
+      treeE.setOrigin(0.5, 0.9);
+      treeE.setDepth((y + 90) * 10);
 
-    for (let x = 100; x < roadLength; x += 180) {
-      const treeN = this.add.image(x, 150, 'delhi_tree');
-      treeN.setOrigin(0.5, 0.9);
-      treeN.setDepth(150 * 10);
+      if (y % 360 === 0) {
+        const lampW = this.add.image(220, y + 30, 'street_lamp');
+        lampW.setOrigin(0.5, 0.95);
+        lampW.setDepth((y + 30) * 10);
 
-      const treeS = this.add.image(x + 90, 640, 'delhi_tree');
-      treeS.setOrigin(0.5, 0.9);
-      treeS.setDepth(640 * 10);
-
-      if (x % 360 === 0) {
-        const lamp = this.add.image(x + 40, 185, 'street_lamp');
-        lamp.setOrigin(0.5, 0.95);
-        lamp.setDepth(185 * 10);
+        const lampE = this.add.image(804, y + 210, 'street_lamp');
+        lampE.setOrigin(0.5, 0.95);
+        lampE.setDepth((y + 210) * 10);
       }
     }
 
+    // 9. Jantar Mantar Monument at the TOP (North Destination)
     if (!this.config.isEndless) {
-      const finishX = this.config.targetDistance + 160;
-      this.finishMonument = this.add.sprite(finishX, 390, 'jantar_mantar_monument');
+      this.finishMonument = this.add.sprite(ROAD_BOUNDS.CENTER_X, ROAD_BOUNDS.FINISH_Y - 40, 'jantar_mantar_monument');
       this.finishMonument.setOrigin(0.5, 0.85);
-      this.finishMonument.setDepth(390 * 10 + 5);
+      this.finishMonument.setDepth(ROAD_BOUNDS.FINISH_Y * 10 + 5);
 
       const bannerText = this.add.text(
-        this.config.targetDistance,
-        175,
+        ROAD_BOUNDS.CENTER_X,
+        ROAD_BOUNDS.FINISH_Y - 150,
         '★ JANTAR MANTAR PROTEST STAGE ★',
         {
           fontFamily: 'Outfit, sans-serif',
@@ -167,7 +183,7 @@ export class GameScene extends Phaser.Scene {
           fontStyle: 'bold',
           color: '#f2a900',
           backgroundColor: '#922b21',
-          padding: { x: 14, y: 6 },
+          padding: { x: 16, y: 8 },
         }
       ).setOrigin(0.5);
       bannerText.setDepth(20000);
@@ -175,71 +191,80 @@ export class GameScene extends Phaser.Scene {
   }
 
   private spawnEntities(): void {
-    const roadLength = this.config.roadLength;
-    const laneY = [260, 390, 520];
-    const barricadeInterval = (roadLength - 400) / this.config.barricadeCount;
+    const startY = this.config.roadLength - 250;
+    const finishY = ROAD_BOUNDS.FINISH_Y + 250;
+    const marchSpan = startY - finishY;
+    const lanesX = [ROAD_BOUNDS.ROAD_LEFT_X + 65, ROAD_BOUNDS.CENTER_X, ROAD_BOUNDS.ROAD_RIGHT_X - 65];
 
+    // Barricade rows across lanes
+    const barricadeInterval = marchSpan / (this.config.barricadeCount + 1);
     for (let i = 1; i <= this.config.barricadeCount; i++) {
-      const bx = 320 + i * barricadeInterval;
-      laneY.forEach((by) => {
+      const by = startY - i * barricadeInterval;
+      lanesX.forEach((bx) => {
         const b = new Barricade(this, bx, by, this.config.barricadeTiers);
         this.barricades.push(b);
       });
     }
 
+    // Citizens / Bystanders on Sidewalks
     for (let i = 0; i < this.config.bystanderCount; i++) {
-      const bx = Phaser.Math.Between(200, roadLength - 200);
-      const isNorth = Math.random() < 0.5;
-      const by = isNorth ? Phaser.Math.Between(140, 185) : Phaser.Math.Between(595, 640);
+      const isWest = Math.random() < 0.5;
+      const bx = isWest ? Phaser.Math.Between(100, 210) : Phaser.Math.Between(814, 924);
+      const by = Phaser.Math.Between(ROAD_BOUNDS.FINISH_Y + 80, startY + 50);
       const bystander = new CrowdMember(this, bx, by, i);
       this.crowd.push(bystander);
     }
 
+    // Police patrols
     for (let i = 0; i < this.config.policeCount; i++) {
-      const px = Phaser.Math.Between(450, roadLength - 100);
-      const py = Phaser.Math.Between(ROAD_BOUNDS.TOP_Y + 30, ROAD_BOUNDS.BOTTOM_Y - 30);
+      const px = Phaser.Math.Between(ROAD_BOUNDS.ROAD_LEFT_X + 30, ROAD_BOUNDS.ROAD_RIGHT_X - 30);
+      const py = Phaser.Math.Between(ROAD_BOUNDS.FINISH_Y + 150, startY - 100);
       const isRiot = this.config.difficulty === 'HARD' || (this.config.difficulty === 'MID' && i % 2 === 0);
       const cop = new PoliceOfficer(this, px, py, isRiot ? 'RIOT' : 'CONSTABLE');
       this.police.push(cop);
     }
 
+    // DTC Buses crossing horizontally across intersections
     for (let i = 0; i < this.config.dtcBusCount; i++) {
-      const vx = 400 + i * 550;
-      const vy = i % 2 === 0 ? 260 : 520;
-      const bus = new Vehicle(this, vx, vy, 'DTC', vx - 180, vx + 180);
+      const vy = startY - 380 - i * 550;
+      const bus = new Vehicle(this, 350, vy, 'DTC', 'X', 240, 784);
       this.vehicles.push(bus);
     }
 
+    // Auto-Rickshaws zipping horizontally or dodging
     for (let i = 0; i < this.config.autoRickshawCount; i++) {
-      const ax = 250 + i * 450;
-      const ay = i % 2 === 0 ? 330 : 450;
-      const auto = new Vehicle(this, ax, ay, 'AUTO', ax - 120, ax + 120);
+      const ay = startY - 200 - i * 400;
+      const auto = new Vehicle(this, 600, ay, 'AUTO', 'X', 250, 770);
       this.vehicles.push(auto);
     }
 
+    // Vajra Water Cannon Truck
     if (this.config.hasWaterCannon) {
-      const vajra1 = new Vehicle(this, roadLength * 0.55, 390, 'VAJRA', roadLength * 0.5, roadLength * 0.65);
-      const vajra2 = new Vehicle(this, roadLength * 0.85, 390, 'VAJRA', roadLength * 0.8, roadLength * 0.95);
+      const vajra1 = new Vehicle(this, ROAD_BOUNDS.CENTER_X, startY - marchSpan * 0.5, 'VAJRA', 'X', 320, 700);
+      const vajra2 = new Vehicle(this, ROAD_BOUNDS.CENTER_X, startY - marchSpan * 0.8, 'VAJRA', 'X', 320, 700);
       this.vehicles.push(vajra1, vajra2);
     }
 
+    // Jammer Van on curb
     if (this.config.hasInternetJammer) {
-      const jammer = new Vehicle(this, roadLength * 0.45, 230, 'JAMMER');
+      const jammer = new Vehicle(this, 230, startY - marchSpan * 0.45, 'JAMMER', 'X', 210, 260);
       this.vehicles.push(jammer);
     }
 
+    // Media News Crews along sidewalks
     for (let i = 0; i < this.config.mediaCrewsCount; i++) {
-      const mx = 350 + i * 650;
-      const my = i % 2 === 0 ? 170 : 610;
+      const isWest = i % 2 === 0;
+      const mx = isWest ? 180 : 844;
+      const my = startY - 250 - i * 600;
       const media = new MediaCrew(this, mx, my);
       this.mediaCrews.push(media);
     }
 
-    // Power-up loot crates including Tractor and N95 Mask!
+    // Power-up loot crates
     const powerTypes: PowerUpType[] = ['LANGAR', 'MEGAPHONE', 'ARMOR'];
     for (let i = 0; i < 7; i++) {
-      const px = 350 + i * 450 + Phaser.Math.Between(-30, 30);
-      const py = Phaser.Math.Between(260, 520);
+      const px = lanesX[i % lanesX.length] + Phaser.Math.Between(-25, 25);
+      const py = startY - 220 - i * 420;
       const pu = new PowerUp(this, px, py, powerTypes[i % powerTypes.length]);
       this.powerUps.push(pu);
     }
@@ -299,7 +324,7 @@ export class GameScene extends Phaser.Scene {
     // Prepare Radar Minimap
     const minimapEntities: MinimapEntity[] = [
       { x: 0, y: 0, type: 'player' },
-      { x: this.config.targetDistance - this.player.x, y: 390 - this.player.y, type: 'target' },
+      { x: ROAD_BOUNDS.CENTER_X - this.player.x, y: ROAD_BOUNDS.FINISH_Y - this.player.y, type: 'target' },
     ];
 
     this.crowd.forEach((c) => {
@@ -348,8 +373,11 @@ export class GameScene extends Phaser.Scene {
       }
     });
 
-    const distanceRem = this.config.targetDistance - this.player.x;
-    const progress = this.player.x / this.config.targetDistance;
+    const startY = this.config.roadLength - 250;
+    const distanceRem = Math.max(0, this.player.y - ROAD_BOUNDS.FINISH_Y);
+    const totalDist = startY - ROAD_BOUNDS.FINISH_Y;
+    const progress = Phaser.Math.Clamp(1 - (distanceRem / totalDist), 0, 1);
+
     const uiScene = this.scene.get('UIScene') as UIScene;
     if (uiScene && uiScene.updateHUD) {
       uiScene.updateHUD(
@@ -374,7 +402,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   public summonRallyTractor(): void {
-    const tr = new RallyTractor(this, this.player.x + 40, this.player.y);
+    const tr = new RallyTractor(this, this.player.x, this.player.y - 45);
     this.tractors.push(tr);
     this.speechSystem.speakTractor();
     this.soundSystem.playMassRushAlarm();
@@ -577,7 +605,7 @@ export class GameScene extends Phaser.Scene {
             }
           }
         } else {
-          this.player.x -= 12;
+          this.player.y += 14;
           this.showComicSpeechBubble(b.x, b.y - 35, `NEED ${requiredCrowd}+ CROWD!`, '#ff3b30', 12);
         }
       }
@@ -619,8 +647,8 @@ export class GameScene extends Phaser.Scene {
       this.tearGasTimer += dt;
       if (this.tearGasTimer >= 7.0) {
         this.tearGasTimer = 0;
-        const gasX = this.player.x + Phaser.Math.Between(90, 210);
-        const gasY = this.player.y + Phaser.Math.Between(-70, 70);
+        const gasX = this.player.x + Phaser.Math.Between(-60, 60);
+        const gasY = this.player.y - Phaser.Math.Between(80, 180);
         const gas = new TearGasHazard(this, gasX, gasY);
         this.tearGasHazards.push(gas);
         this.soundSystem.playTearGas();
@@ -651,7 +679,7 @@ export class GameScene extends Phaser.Scene {
       if (active && this.activeBuff !== 'ARMOR') {
         const dist = Math.hypot(jet.x - this.player.x, jet.y - this.player.y);
         if (dist < 30) {
-          this.player.x -= 30;
+          this.player.y += 30;
           this.cameras.main.shake(120, 0.005);
         }
       }
@@ -738,7 +766,7 @@ export class GameScene extends Phaser.Scene {
   private checkVictory(crowdCount: number): void {
     if (this.config.isEndless) return; // Endless rally keeps marching!
 
-    if (this.player.x >= this.config.targetDistance) {
+    if (this.player.y <= ROAD_BOUNDS.FINISH_Y) {
       if (crowdCount >= this.config.minCrowdForVictory) {
         this.isVictory = true;
         this.soundSystem.stopDholakBeat();
@@ -749,7 +777,7 @@ export class GameScene extends Phaser.Scene {
           barricadesBroken: this.barricadesBreached,
         });
       } else {
-        this.player.x = this.config.targetDistance - 18;
+        this.player.y = ROAD_BOUNDS.FINISH_Y + 18;
         this.showComicSpeechBubble(
           this.player.x,
           this.player.y - 45,
@@ -765,7 +793,9 @@ export class GameScene extends Phaser.Scene {
     this.isGameOver = true;
     this.soundSystem.stopDholakBeat();
     const finalCrowd = this.crowd.filter((c) => c.state === 'FOLLOWING').length + 1;
-    SaveManager.getInstance().updateEndlessScore(this.player.x, finalCrowd);
+    const startY = this.config.roadLength - 250;
+    const marchDist = Math.max(0, startY - this.player.y);
+    SaveManager.getInstance().updateEndlessScore(marchDist, finalCrowd);
 
     this.scene.stop('UIScene');
     this.scene.start('GameOverScene', {

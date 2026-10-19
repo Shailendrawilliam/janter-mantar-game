@@ -11,7 +11,7 @@ export class Player extends Phaser.GameObjects.Sprite {
   public chantCooldown = 0;
   public sprintEnergy = 100;
   public maxSprintEnergy = 100;
-  public headingAngle = 90; // Default facing East towards Jantar Mantar
+  public headingAngle = 0; // Default facing North towards Jantar Mantar
   private dustTimer = 0;
   private walkBob = 0;
 
@@ -67,8 +67,8 @@ export class Player extends Phaser.GameObjects.Sprite {
         this.setFlipX(false);
       }
 
-      // Compass heading in degrees (0 = East, 90 = South, 180 = West, 270 = North)
-      let deg = Phaser.Math.RadToDeg(Math.atan2(moveY, moveX));
+      // Compass heading in degrees: 0 = North (Up), 90 = East (Right), 180 = South (Down), 270 = West (Left)
+      let deg = Phaser.Math.RadToDeg(Math.atan2(moveX, -moveY));
       if (deg < 0) deg += 360;
       this.headingAngle = Math.round(deg);
 
@@ -84,9 +84,9 @@ export class Player extends Phaser.GameObjects.Sprite {
       }
     }
 
-    // Clamp inside road corridor bounds
-    this.y = Phaser.Math.Clamp(this.y, ROAD_BOUNDS.TOP_Y, ROAD_BOUNDS.BOTTOM_Y);
-    this.x = Math.max(80, this.x);
+    // Clamp inside walkable corridor bounds (sidewalks + road)
+    this.x = Phaser.Math.Clamp(this.x, ROAD_BOUNDS.WALK_MIN_X, ROAD_BOUNDS.WALK_MAX_X);
+    this.y = Math.max(ROAD_BOUNDS.FINISH_Y - 40, this.y);
 
     // Dynamic depth sorting
     this.setDepth(IsometricUtils.getDepth(this.x, this.y, 2));

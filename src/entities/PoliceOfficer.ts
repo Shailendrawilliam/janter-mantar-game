@@ -37,7 +37,7 @@ export class PoliceOfficer extends Phaser.GameObjects.Sprite {
     // Pushback recovery
     if (this.pushback > 0) {
       this.pushback = Math.max(0, this.pushback - dt * 60);
-      this.y = Phaser.Math.Clamp(this.y, ROAD_BOUNDS.TOP_Y, ROAD_BOUNDS.BOTTOM_Y);
+      this.x = Phaser.Math.Clamp(this.x, ROAD_BOUNDS.WALK_MIN_X, ROAD_BOUNDS.WALK_MAX_X);
       this.setDepth(IsometricUtils.getDepth(this.x, this.y, 1));
       return { detaining: false, blewWhistle: false };
     }
@@ -74,7 +74,7 @@ export class PoliceOfficer extends Phaser.GameObjects.Sprite {
       }
     }
 
-    this.y = Phaser.Math.Clamp(this.y, ROAD_BOUNDS.TOP_Y, ROAD_BOUNDS.BOTTOM_Y);
+    this.x = Phaser.Math.Clamp(this.x, ROAD_BOUNDS.WALK_MIN_X, ROAD_BOUNDS.WALK_MAX_X);
     this.setDepth(IsometricUtils.getDepth(this.x, this.y, 1));
     return { detaining, blewWhistle };
   }
@@ -83,7 +83,7 @@ export class PoliceOfficer extends Phaser.GameObjects.Sprite {
     this.pushback = force;
     this.x += Math.cos(angle) * force;
     this.y += Math.sin(angle) * force;
-    this.y = Phaser.Math.Clamp(this.y, ROAD_BOUNDS.TOP_Y, ROAD_BOUNDS.BOTTOM_Y);
+    this.x = Phaser.Math.Clamp(this.x, ROAD_BOUNDS.WALK_MIN_X, ROAD_BOUNDS.WALK_MAX_X);
     this.setDepth(IsometricUtils.getDepth(this.x, this.y, 1));
   }
 }

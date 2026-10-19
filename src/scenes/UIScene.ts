@@ -115,7 +115,7 @@ export class UIScene extends Phaser.Scene {
     pointer.fillTriangle(0, h / 2 - 2, -5, h / 2 + 5, 5, h / 2 + 5);
 
     this.compassRibbon = this.add.graphics();
-    this.compassMarkerText = this.add.text(0, -2, 'EAST • 90°', {
+    this.compassMarkerText = this.add.text(0, -2, 'NORTH • 0°', {
       fontFamily: 'Outfit, sans-serif',
       fontSize: '12px',
       fontStyle: 'bold',
@@ -514,7 +514,17 @@ export class UIScene extends Phaser.Scene {
     headingDeg: number,
     minimapEntities: MinimapEntity[]
   ): void {
-    this.compassMarkerText.setText(`${headingDeg}° • DIST: ${Math.max(0, Math.round(distanceRem))}m`);
+    let cardinal = 'NORTH';
+    if (headingDeg >= 338 || headingDeg < 23) cardinal = 'NORTH';
+    else if (headingDeg >= 23 && headingDeg < 68) cardinal = 'NE';
+    else if (headingDeg >= 68 && headingDeg < 113) cardinal = 'EAST';
+    else if (headingDeg >= 113 && headingDeg < 158) cardinal = 'SE';
+    else if (headingDeg >= 158 && headingDeg < 203) cardinal = 'SOUTH';
+    else if (headingDeg >= 203 && headingDeg < 248) cardinal = 'SW';
+    else if (headingDeg >= 248 && headingDeg < 293) cardinal = 'WEST';
+    else cardinal = 'NW';
+
+    this.compassMarkerText.setText(`${cardinal} • ${headingDeg}° • DIST: ${Math.max(0, Math.round(distanceRem))}m`);
 
     this.squadCrowdText.setText(`2 👥 KAFILA: ${crowdCount} CITIZENS`);
     if (crowdCount >= targetCrowd) {
